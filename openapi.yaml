@@ -293,6 +293,10 @@ components:
         textContent:
           description: Text content added in the post
           type: string
+        imageUrl:
+          description: URL to the image attached to the post
+          type: string
+          format: url
         comments:
           description: Quantity of comments added to the post
           type: integer
