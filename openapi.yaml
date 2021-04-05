@@ -1,0 +1,368 @@
+openapi: 3.0.3
+info:
+  title: sf-microblog
+  description: Specification of resources available on API Gateway in sf-microblog
+  contact:
+    name: Maksymilian Babarowski
+    email: maksymilian@babarowski.pl
+  license:
+    name: MIT
+  version: 1.0.0
+
+paths:
+  /post:
+    get:
+      description: Returns list of all publicly available posts sorted chronologically
+      responses:
+        200:
+          description: A list of posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/basicPost'
+    post:
+      description: Adds a new post
+      responses:
+        200:
+          description: Newly added post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/post'
+        400:
+          description: Malformed request body
+        401:
+          description: No authorization token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newPost'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                postDetails:
+                  $ref:
+                    '#/components/schemas/newPost'
+                mediaData:
+                  type: string
+                  format: binary
+            encoding:
+              postDetails:
+                contentType: application/json
+              mediaData:
+                contentType: image/jpeg, image/png, image/gif, image/webp
+  /post/{id}:
+    get:
+      description: Returns details of a single post matched by ID
+      responses:
+        200:
+          description: Details of the post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/post'
+        404:
+          description: Post does not exist or has been deleted
+    put:
+      description: Updates post sent by an authorized user
+      responses:
+        200:
+          description: Details of the updated post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/post'
+        400:
+          description: Malformed request body
+        401:
+          description: User is not authorized (not an author)
+        404:
+          description: Post does not exist or has been deleted
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newPost'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                postDetails:
+                  $ref:
+                    '#/components/schemas/newPost'
+                mediaData:
+                  type: string
+                  format: binary
+            encoding:
+              postDetails:
+                contentType: application/json
+              mediaData:
+                contentType: image/jpeg, image/png, image/gif, image/webp
+    delete:
+      description: Removes the post added by the user
+      responses:
+        204:
+          description: Post removed
+        401:
+          description: Not authorized to remove this post (not an author)
+        404:
+          description: Post does not exist or has already been removed
+    parameters:
+      - name: id
+        in: path
+        description: ID of the post
+        required: true
+        schema:
+          type: integer
+          format: long
+  /comment:
+    post:
+      description: Adds a new comment
+      responses:
+        200:
+          description: Newly added comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        400:
+          description: Malformed request body
+        401:
+          description: No authorization
+        404:
+          description: Post with specified ID does not exist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                postId:
+                  description: ID of the post comment is being added to
+                  type: integer
+                  format: long
+                textContent:
+                  description: Content of the comment
+                  type: string
+  /comment/{id}:
+    delete:
+      description: Removes the comment added by the user
+      responses:
+        204:
+          description: Comment removed
+        401:
+          description: Unauthorized to remove the comment (not an author)
+        404:
+          description: Comment does not exist or has alread been removed
+    put:
+      description: Updated the comment added by the user
+      responses:
+        200:
+          description: Details of an updated comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        400:
+          description: Malformed request body
+        401:
+          description: User not authorized (not an author)
+        404:
+          description: Comment does not exist or has been deleted
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                postId:
+                  description: ID of the post comment is being added to
+                  type: integer
+                  format: long
+                textContent:
+                  description: Content of the comment
+                  type: string
+    parameters:
+      - name: id
+        in: path
+        description: ID of the comment
+        required: true
+        schema:
+          type: integer
+          format: long
+  /user:
+    get:
+      description: Gets details of an authenticated user
+      responses:
+        200:
+          description: Details of an authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userSummary'
+        401:
+          description: No authorization
+    put:
+      description: Updates details of an authenticated user
+      responses:
+        200:
+          description: Updated details of an authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userSummary'
+        401:
+          description: No authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  description: URL of a new avatar image
+                  type: string
+  /user/{username}:
+    get:
+      description: Get publicly available details of an user
+      responses:
+        200:
+          description: Details of an user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userDetails'
+        404:
+          description: User does not exist
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+
+components:
+  schemas:
+    post:
+      description: Full details of a post
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the post, started by 1 and autoincremented with each post and comment added
+          type: integer
+          format: long
+        author:
+          $ref: '#/components/schemas/basicUserDetails'
+        title:
+          description: Title of the post
+          type: string
+        textContent:
+          description: Text content added in the post
+          type: string
+        comments:
+          description: List of comments of a post
+          type: array
+          items:
+            $ref: '#/components/schemas/comment'
+        date:
+          description: Date and time when post was added
+          type: string
+          format: date-time
+    basicPost:
+      description: Basic details of a post
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the post, started by 1 and autoincremented with each post and comment added
+          type: integer
+          format: long
+        author:
+          $ref: '#/components/schemas/basicUserDetails'
+        title:
+          description: Title of the post
+          type: string
+        textContent:
+          description: Text content added in the post
+          type: string
+        comments:
+          description: Quantity of comments added to the post
+          type: integer
+          format: int32
+        date:
+          description: Date and time when post was added
+          type: string
+          format: date-time
+    newPost:
+      description: Details of a new posted to be added. Essentially post schema without auto-generated fields.
+      type: object
+      properties:
+        title:
+          description: Title of a new post
+          type: string
+        textContent:
+          description: Text content of a new post
+          type: string
+    comment:
+      description: Full details of a comment
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the comment, started by 1 and autoincremented with each post and comment added
+          type: integer
+          format: long
+        author:
+          $ref: '#/components/schemas/basicUserDetails'
+        content:
+          description: Content of a comment
+          type: string
+        date:
+          description: Date and time when comment was added
+          type: string
+          format: date-time
+    basicUserDetails:
+      description: Basic details of the user
+      type: object
+      properties:
+        username:
+          type: string
+        avatar:
+          description: URL pointing to the avatar used
+          type: string
+    userSummary:
+      description: All details of the user
+      type: object
+      properties:
+        username:
+          type: string
+        avatar:
+          description: URL pointing to the avatar used
+          type: string
+        joined:
+          description: Date and time of user account creation
+          type: string
+          format: date-time
+    userDetails:
+      description: All details of the user and their recent activity
+      type: object
+      properties:
+        summary:
+          $ref: '#/components/schemas/userSummary'
+        posts:
+          description: List of posts user has added
+          type: array
+          items:
+            $ref: '#/components/schemas/basicPost'
+        comments:
+          description: List of comments user has added
+          type: array
+          items:
+            $ref: '#/components/schemas/comment'
