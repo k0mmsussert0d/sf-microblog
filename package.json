@@ -1,0 +1,11 @@
+{
+  "name": "sf-nanoblog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Maks Babarowski",
+  "license": "MIT",
+  "dependencies": {
+    "serverless": "^2.33.1"
+  },
+  "devDependencies": {}
+}

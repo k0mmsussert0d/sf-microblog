@@ -1,0 +1,144 @@
+service: sf-microblog
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: '20201221'
+  environment:
+    DOMAIN_PREFIX: ${self:service}-${opt:stage, self:provider.stage, 'dev'}
+  httpApi:
+    authorizers:
+      userPoolAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: 
+          Fn::Join:
+          - ''
+          - - 'https://cognito-idp.'
+            - '${opt:region, self:provider.region}'
+            - '.amazonaws.com/'
+            - Ref: userPool
+        audience:
+          - Ref: userPoolClient
+
+functions:
+  # posts public:
+  getPosts:
+    handler: microblog.post.get_all
+    events:
+      - httpApi:
+          method: GET
+          path: /post
+  getPost:
+    handler: microblog.post.get
+    events:
+      - httpApi:
+          method: GET
+          /path: /post/{id}
+  # posts authorized:
+  postPost:
+    handler: microblog.post.post
+    events:
+      - httpApi:
+          method: POST
+          path: /post
+          authorizer: userPoolAuthorizer
+  updatePost:
+    handler: microblog.post.update
+    events:
+      - httpApi:
+          method: PUT
+          path: /post/{id}
+          authorizer: userPoolAuthorizer
+  removePost:
+    handler: microblog.post.remove
+    events:
+      - httpApi:
+          method: DELETE
+          path: /post/{id}
+          authorizer: userPoolAuthorizer
+  # comment authorized
+  postComment:
+    handler: microblog.comment.post
+    events:
+      - httpApi:
+          method: POST
+          path: /comment
+          authorizer: userPoolAuthorizer
+  updateComment:
+    handler: microblog.comment.update
+    events:
+      - httpApi:
+          method: PUT
+          path: /comment/{id}
+          authorizer: userPoolAuthorizer
+  removeComment:
+    handler: microblog.comment.remove
+    events:
+      - httpApi:
+          method: DELETE
+          path: /comment/{id}
+          authorizer: userPoolAuthorizer
+  # user public
+  getBasicUserDetails:
+    handler: microblog.user.get_basic_details
+    events:
+      - httpApi:
+          method: GET
+          path: /user/{username}
+  # user authorized
+  getUserDetails:
+    handler: microblog.user.get_details
+    events:
+      - httpApi:
+          method: GET
+          path: /user
+  updateUserDetails:
+    handler: microblog.user.update_details
+    events:
+      - httpApi:
+          method: PUT
+          path: /user
+
+resources:
+  Resources:
+    HttpApi:
+      Type: 'AWS::ApiGatewayV2::Api'
+      DependsOn: userPool
+    userPool:
+      Type: 'AWS::Cognito::UserPool'
+      Properties:
+        UserPoolName: ${env:DOMAIN_PREFIX}-user-pool
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+    userPoolClient:
+      Type: 'AWS::Cognito::UserPoolClient'
+      Properties:
+        ClientName: {$env:DOMAIN_PREFIX}-user-pool-client
+        AllowedOAuthFlows:
+          - implicit
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthScopes:
+          - phone
+          - email
+          - openid
+          - profile
+          - aws.cognito.signin.user.admin
+        UserPoolId:
+          Ref: userPool
+        CallbackURLs: 
+          - https://localhost:3000
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+        SupportedIdentityProviders: 
+          - COGNITO
+    userPoolDomain:
+      Type: 'AWS::Cognito::UserPoolDomain'
+      Properties:
+        UserPoolId: 
+          Ref: userPool
+        Domain: ${env:DOMAIN_PREFIX}-user-pool-domain
