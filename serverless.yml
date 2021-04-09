@@ -22,83 +22,56 @@ provider:
           - Ref: userPoolClient
 
 functions:
-  # posts public:
-  getPosts:
-    handler: microblog.post.get_all
+  posts:
+    handler: microblog.handlers.posts
     events:
       - httpApi:
-          method: GET
           path: /post
-  getPost:
-    handler: microblog.post.get
-    events:
-      - httpApi:
           method: GET
-          /path: /post/{id}
-  # posts authorized:
-  postPost:
-    handler: microblog.post.post
-    events:
       - httpApi:
+          path: /post
           method: POST
-          path: /post
           authorizer: userPoolAuthorizer
-  updatePost:
-    handler: microblog.post.update
-    events:
       - httpApi:
+          path: /post/{id}
+          method: GET
+      - httpApi:
+          path: /post/{id}
           method: PUT
-          path: /post/{id}
           authorizer: userPoolAuthorizer
-  removePost:
-    handler: microblog.post.remove
-    events:
       - httpApi:
+          path: /post/{id}
           method: DELETE
-          path: /post/{id}
           authorizer: userPoolAuthorizer
-  # comment authorized
-  postComment:
-    handler: microblog.comment.post
+  comment:
+    handler: microblog.handlers.comment
     events:
       - httpApi:
-          method: POST
           path: /comment
+          method: POST
           authorizer: userPoolAuthorizer
-  updateComment:
-    handler: microblog.comment.update
-    events:
       - httpApi:
-          method: PUT
           path: /comment/{id}
+          method: PUT
           authorizer: userPoolAuthorizer
-  removeComment:
-    handler: microblog.comment.remove
-    events:
       - httpApi:
+          path: /comment/{id}
           method: DELETE
-          path: /comment/{id}
           authorizer: userPoolAuthorizer
-  # user public
-  getBasicUserDetails:
-    handler: microblog.user.get_basic_details
+  user:
+    handler: microblog.handlers.user
     events:
       - httpApi:
-          method: GET
-          path: /user/{username}
-  # user authorized
-  getUserDetails:
-    handler: microblog.user.get_details
-    events:
-      - httpApi:
-          method: GET
           path: /user
-  updateUserDetails:
-    handler: microblog.user.update_details
-    events:
+          method: GET
+          authorizer: userPoolAuthorizer
       - httpApi:
+          path: /user
           method: PUT
-          path: /user
+          authorizer: userPoolAuthorizer
+      - httpApi:
+          path: /user/{username}
+          method: GET
 
 resources:
   Resources:
