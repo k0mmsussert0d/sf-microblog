@@ -43,14 +43,7 @@ paths:
               $ref: '#/components/schemas/newPost'
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                postDetails:
-                  $ref:
-                    '#/components/schemas/newPost'
-                mediaData:
-                  type: string
-                  format: binary
+              $ref: '#/components/schemas/newPostWithMedia'
             encoding:
               postDetails:
                 contentType: application/json
@@ -91,14 +84,7 @@ paths:
               $ref: '#/components/schemas/newPost'
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                postDetails:
-                  $ref:
-                    '#/components/schemas/newPost'
-                mediaData:
-                  type: string
-                  format: binary
+              $ref: '#/components/schemas/newPostWithMedia'
             encoding:
               postDetails:
                 contentType: application/json
@@ -142,15 +128,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                postId:
-                  description: ID of the post comment is being added to
-                  type: integer
-                  format: long
-                textContent:
-                  description: Content of the comment
-                  type: string
+              $ref: '#/components/schemas/newComment'
   /comment/{id}:
     delete:
       description: Removes the comment added by the user
@@ -181,15 +159,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                postId:
-                  description: ID of the post comment is being added to
-                  type: integer
-                  format: long
-                textContent:
-                  description: Content of the comment
-                  type: string
+              $ref: '#/components/schemas/newComment'
     parameters:
       - name: id
         in: path
@@ -226,11 +196,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                avatar:
-                  description: URL of a new avatar image
-                  type: string
+              $ref: '#/components/schemas/newUserDetails'
   /user/{username}:
     get:
       description: Get publicly available details of an user
@@ -271,12 +237,19 @@ components:
         comments:
           description: List of comments of a post
           type: array
+          default: []
           items:
             $ref: '#/components/schemas/comment'
         date:
           description: Date and time when post was added
           type: string
           format: date-time
+      required:
+        - id
+        - author
+        - title
+        - textContent
+        - date
     basicPost:
       description: Basic details of a post
       type: object
@@ -297,7 +270,8 @@ components:
           description: URL to the image attached to the post
           type: string
           format: url
-        comments:
+          default: null
+        commentsCount:
           description: Quantity of comments added to the post
           type: integer
           format: int32
@@ -305,6 +279,13 @@ components:
           description: Date and time when post was added
           type: string
           format: date-time
+      required:
+        - id
+        - author
+        - title
+        - textContent
+        - commentsCount
+        - date
     newPost:
       description: Details of a new posted to be added. Essentially post schema without auto-generated fields.
       type: object
@@ -315,6 +296,17 @@ components:
         textContent:
           description: Text content of a new post
           type: string
+      required:
+        - title
+        - textContent
+    newPostWithMedia:
+      type: object
+      properties:
+        postDetails:
+          $ref: '#/components/schemas/newPost'
+        mediaData:
+          type: string
+          format: binary
     comment:
       description: Full details of a comment
       type: object
@@ -332,6 +324,22 @@ components:
           description: Date and time when comment was added
           type: string
           format: date-time
+      required:
+        - id
+        - author
+        - content
+        - date
+    newComment:
+      description: Details of newly added comment. Essentialy comment schema without auto-generated fields.
+      type: object
+      properties:
+        postId:
+          description: ID of the post comment is being added to
+          type: integer
+          format: long
+        textContent:
+          description: Content of the comment
+          type: string
     basicUserDetails:
       description: Basic details of the user
       type: object
@@ -341,6 +349,9 @@ components:
         avatar:
           description: URL pointing to the avatar used
           type: string
+          default: null
+      required:
+        - username
     userSummary:
       description: All details of the user
       type: object
@@ -350,10 +361,14 @@ components:
         avatar:
           description: URL pointing to the avatar used
           type: string
+          default: null
         joined:
           description: Date and time of user account creation
           type: string
           format: date-time
+      required:
+        - username
+        - joined
     userDetails:
       description: All details of the user and their recent activity
       type: object
@@ -365,8 +380,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/basicPost'
+          default: []
         comments:
           description: List of comments user has added
           type: array
           items:
             $ref: '#/components/schemas/comment'
+          default: []
+      required:
+        - summary
+    newUserDetails:
+      description: User details to be updated
+      type: object
+      properties:
+        avatar:
+          description: URL of a new avatar image
+          type: string
