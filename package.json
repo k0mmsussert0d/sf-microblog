@@ -5,7 +5,8 @@
   "author": "Maks Babarowski",
   "license": "MIT",
   "dependencies": {
-    "serverless": "^2.33.1"
+    "serverless": "^2.33.1",
+    "serverless-python-requirements": "^5.1.1"
   },
   "devDependencies": {}
 }

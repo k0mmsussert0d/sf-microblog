@@ -95,3 +95,7 @@ class Post(BaseModel):
     imageId: Optional[str] = Field(
         None, description='ID of the image attached to the post'
     )
+
+
+class PostList(BaseModel):
+    __root__: List[Post]

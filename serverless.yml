@@ -1,15 +1,32 @@
 service: sf-microblog
 frameworkVersion: '2'
 
+useDotenv: true
 provider:
   name: aws
   runtime: python3.8
   lambdaHashingVersion: '20201221'
   environment:
     DOMAIN_PREFIX: ${self:service}-${opt:stage, self:provider.stage, 'dev'}
-    COMMENTS_TABLE: ${env:DOMAIN_PREFIX}-comments-table
-    COGNITO_USER_POOL: ${env:DOMAIN_PREFIX}-user-pool
+    POSTS_TABLE: ${self:provider.environment.DOMAIN_PREFIX}-posts-table
+    COMMENTS_TABLE: ${self:provider.environment.DOMAIN_PREFIX}-comments-table
+    COGNITO_USER_POOL: ${self:provider.environment.DOMAIN_PREFIX}-user-pool
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}/index/*"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}/index/*"
   httpApi:
+    cors: true
     authorizers:
       userPoolAuthorizer:
         identitySource: $request.header.Authorization
@@ -83,7 +100,7 @@ resources:
     userPool:
       Type: 'AWS::Cognito::UserPool'
       Properties:
-        UserPoolName: ${env:COGNITO_USER_POOL}
+        UserPoolName: ${self:provider.environment.COGNITO_USER_POOL}
         UsernameAttributes:
           - email
         AutoVerifiedAttributes:
@@ -91,7 +108,7 @@ resources:
     userPoolClient:
       Type: 'AWS::Cognito::UserPoolClient'
       Properties:
-        ClientName: {$env:DOMAIN_PREFIX}-user-pool-client
+        ClientName: ${self:provider.environment.DOMAIN_PREFIX}-user-pool-client
         AllowedOAuthFlows:
           - implicit
         AllowedOAuthFlowsUserPoolClient: true
@@ -116,4 +133,60 @@ resources:
       Properties:
         UserPoolId: 
           Ref: userPool
-        Domain: ${env:DOMAIN_PREFIX}-user-pool-domain
+        Domain: ${self:provider.environment.DOMAIN_PREFIX}-user-pool-domain
+    PostsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:provider.environment.POSTS_TABLE}
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+          - AttributeName: authorSub
+            AttributeType: S
+        GlobalSecondaryIndexes:
+          - IndexName: gsiUserPosts
+            KeySchema:
+              - AttributeName: authorSub
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+    CommentsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:provider.environment.COMMENTS_TABLE}
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+          - AttributeName: postId
+            AttributeType: N
+        GlobalSecondaryIndexes:
+          - IndexName: gsiPostComments
+            KeySchema:
+              - AttributeName: postId
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+package:
+  exclude:
+    - .aws-sam/**
+    - .idea/**
+    - tests/**
+    - node_modules/**
+    - venv/**
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux

@@ -1,3 +1,4 @@
+from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEventV2
 from aws_lambda_powertools.utilities.parser import parse, ValidationError
 
@@ -10,19 +11,26 @@ from microblog.user import get_user_self_details, update_user_self_details, get_
 from microblog.utils.parser import ApiGatewayProxyV2Envelope
 
 
+logger = Logger()
+
+
+@logger.inject_lambda_context()
 def posts(event, _):
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
     method = event.request_context.http.method
     path_params = event.path_parameters
     content_type = event.headers.get('Content-Type', 'application/json')
-    user_claims = OpenIdClaims.parse_obj(event.request_context.authorizer.jwt_claim)
+    if authorizer := event.request_context.authorizer:
+        user_claims = OpenIdClaims.parse_obj(authorizer.jwt_claim)
+    else:
+        user_claims = None
 
     try:
         if not path_params:
             if method == 'GET':
                 return {
                     'statusCode': 200,
-                    'body': get_posts()
+                    'body': get_posts().json()
                 }
 
             elif method == 'POST':
@@ -85,6 +93,7 @@ def posts(event, _):
     }
 
 
+@logger.inject_lambda_context()
 def comment(event, _):
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
     method = event.request_context.http.method
@@ -121,6 +130,7 @@ def comment(event, _):
     }
 
 
+@logger.inject_lambda_context()
 def user(event, _):
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
     method = event.request_context.http.method
