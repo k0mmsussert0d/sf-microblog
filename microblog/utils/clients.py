@@ -13,5 +13,9 @@ def dynamodb() -> DynamoDBServiceResource:
     return boto3.resource('dynamodb')
 
 
+def posts_table() -> Table:
+    return dynamodb().Table(os.environ['POSTS_TABLE'])
+
+
 def comments_table() -> Table:
     return dynamodb().Table(os.environ['COMMENTS_TABLE'])
