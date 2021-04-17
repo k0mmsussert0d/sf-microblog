@@ -7,6 +7,8 @@ provider:
   lambdaHashingVersion: '20201221'
   environment:
     DOMAIN_PREFIX: ${self:service}-${opt:stage, self:provider.stage, 'dev'}
+    COMMENTS_TABLE: ${env:DOMAIN_PREFIX}-comments-table
+    COGNITO_USER_POOL: ${env:DOMAIN_PREFIX}-user-pool
   httpApi:
     authorizers:
       userPoolAuthorizer:
@@ -81,7 +83,7 @@ resources:
     userPool:
       Type: 'AWS::Cognito::UserPool'
       Properties:
-        UserPoolName: ${env:DOMAIN_PREFIX}-user-pool
+        UserPoolName: ${env:COGNITO_USER_POOL}
         UsernameAttributes:
           - email
         AutoVerifiedAttributes:

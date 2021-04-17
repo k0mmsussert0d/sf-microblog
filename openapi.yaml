@@ -244,6 +244,9 @@ components:
           description: Date and time when post was added
           type: string
           format: date-time
+        imageId:
+          description: ID of the image attached to the post
+          type: string
       required:
         - id
         - author
