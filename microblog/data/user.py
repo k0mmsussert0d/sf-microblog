@@ -10,8 +10,8 @@ def get_basic_user_details(user_sub: str) -> Optional[BasicUserDetails]:
     client = cognito()
     res = client.list_users(
         UserPoolId=os.environ['COGNITO_USER_POOL_ID'],
-        AttributesToGet=['username', 'avatar'],
-        Filter=f'sub={user_sub}'
+        Filter=f'sub = "{user_sub}"',
+        Limit=1
     )
 
     if len(res['Users']) == 0:

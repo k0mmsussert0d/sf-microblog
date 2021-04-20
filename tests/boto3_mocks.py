@@ -37,8 +37,16 @@ def dynamodb_posts_table(dynamodb):
                 'AttributeType': 'N'
             },
             {
+                'AttributeName': 'date',
+                'AttributeType': 'N'
+            },
+            {
                 'AttributeName': 'authorSub',
                 'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'active',
+                'AttributeType': 'N'
             }
         ],
         GlobalSecondaryIndexes=[
@@ -52,6 +60,22 @@ def dynamodb_posts_table(dynamodb):
                     {
                         'AttributeName': 'id',
                         'KeyType': 'HASH'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'ALL'
+                }
+            },
+            {
+                'IndexName': 'gsiAllPostsSorted',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'active',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'date',
+                        'KeyType': 'RANGE'
                     }
                 ],
                 'Projection': {

@@ -8,6 +8,7 @@ from microblog.models.openid import OpenIdClaims
 from microblog.posts import get_posts, post_post, get_post, update_post, delete_post, post_post_w_media, \
     update_post_w_media
 from microblog.user import get_user_self_details, update_user_self_details, get_user_details
+from microblog.utils.exceptions import AuthorizationError, NotFoundError
 from microblog.utils.parser import ApiGatewayProxyV2Envelope
 
 
@@ -30,7 +31,10 @@ def posts(event, _):
             if method == 'GET':
                 return {
                     'statusCode': 200,
-                    'body': get_posts().json()
+                    'body': get_posts().json(),
+                    'headers': {
+                        'Content-Type': 'application/json'
+                    }
                 }
 
             elif method == 'POST':
@@ -38,15 +42,18 @@ def posts(event, _):
                     # noinspection PyTypeChecker
                     body: NewPost = parse(event, NewPost, ApiGatewayProxyV2Envelope)
                     return {
-                        'statusCode': 200,
-                        'body': post_post(body, user_claims).json()
+                        'statusCode': 201,
+                        'body': post_post(body, user_claims).json(),
+                        'headers': {
+                            'Content-Type': 'application/json'
+                        }
                     }
 
                 elif content_type == 'multipart/form-data':
                     # noinspection PyTypeChecker
                     body: NewPostWithMedia = parse(event, NewPostWithMedia, ApiGatewayProxyV2Envelope)
                     return {
-                        'statusCode': 200,
+                        'statusCode': 201,
                         'body': post_post_w_media(body, user_claims).json()
                     }
 
@@ -54,19 +61,43 @@ def posts(event, _):
             post_id = int(path_params['id'])
 
             if method == 'GET':
-                return {
-                    'statusCode': 200,
-                    'body': get_post(post_id).json()
-                }
+                try:
+                    return {
+                        'statusCode': 200,
+                        'body': get_post(post_id, user_claims).json(),
+                        'headers': {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                except AuthorizationError:
+                    return {
+                        'statusCode': 403
+                    }
+                except NotFoundError:
+                    return {
+                        'statusCode': 404
+                    }
 
             elif method == 'PUT':
                 if content_type == 'application/json':
                     # noinspection PyTypeChecker
                     body: NewPost = parse(event, NewPost, ApiGatewayProxyV2Envelope)
-                    return {
-                        'statusCode': 200,
-                        'body': update_post(post_id, body, user_claims).json()
-                    }
+                    try:
+                        return {
+                            'statusCode': 200,
+                            'body': update_post(post_id, body, user_claims).json(),
+                            'headers': {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    except AuthorizationError:
+                        return {
+                            'statusCode': 403
+                        }
+                    except NotFoundError:
+                        return {
+                            'statusCode': 404
+                        }
 
                 elif content_type == 'multipart/form-data':
                     # noinspection PyTypeChecker
@@ -77,19 +108,32 @@ def posts(event, _):
                     }
 
             elif method == 'DELETE':
-                return {
-                    'statusCode': 200,
-                    'body': delete_post(post_id, user_claims).json()
-                }
+                try:
+                    return {
+                        'statusCode': 200,
+                        'body': delete_post(post_id, user_claims).json(),
+                        'headers': {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                except AuthorizationError:
+                    return {
+                        'statusCode': 403
+                    }
+                except NotFoundError:
+                    return {
+                        'statusCode': 404
+                    }
 
-    except ValidationError:
+    except ValidationError as e:
+        logger.error(e.errors(), exc_info=True)
         return {
             'statusCode': 400,
             'body': 'Malformed request body'
         }
 
     return {
-        'statusCode': 401
+        'statusCode': 405
     }
 
 

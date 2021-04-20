@@ -1,3 +1,5 @@
+from typing import Optional
+
 from microblog.models.base_model import BaseModel
 
 
@@ -6,8 +8,9 @@ class PostDoc(BaseModel):
     authorSub: str
     title: str
     textContent: str
-    imageId: str
+    imageId: Optional[str] = ...
     date: int
+    active: bool = True
 
 
 class CommentDoc(BaseModel):

@@ -11,13 +11,20 @@ def get_post_doc(post_id: int) -> Optional[PostDoc]:
         }
     )
 
-    if 'Item' not in res:
-        return None
+    if db_doc := res.get('Item'):
+        db_doc['active'] = (db_doc['active'] == 1)
+        return PostDoc.parse_obj(res['Item'])
 
-    return PostDoc.parse_obj(res['Item'])
+    return None
 
 
 def put_post_doc(post_doc: PostDoc) -> None:
+    db_doc = post_doc.dict()
+    if post_doc.active:
+        db_doc['active'] = 1
+    else:
+        db_doc['active'] = 0
+
     posts_table().put_item(
-        Item=post_doc.dict()
+        Item=db_doc
     )

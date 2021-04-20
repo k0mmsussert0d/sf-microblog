@@ -11,6 +11,8 @@ provider:
     POSTS_TABLE: ${self:provider.environment.DOMAIN_PREFIX}-posts-table
     COMMENTS_TABLE: ${self:provider.environment.DOMAIN_PREFIX}-comments-table
     COGNITO_USER_POOL: ${self:provider.environment.DOMAIN_PREFIX}-user-pool
+    COGNITO_USER_POOL_ID:
+      Ref: userPool
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -25,6 +27,14 @@ provider:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}/index/*"
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}/index/*"
+    - Effect: Allow
+      Action:
+        - cognito-idp:ListUsers
+      Resource:
+        - Fn::Join:
+          - ''
+          - - "arn:aws:cognito-idp:${opt:region, self:provider.region}:*:userpool/"
+            - Ref: userPool
   httpApi:
     cors: true
     authorizers:
@@ -146,12 +156,24 @@ resources:
             AttributeType: N
           - AttributeName: authorSub
             AttributeType: S
+          - AttributeName: date
+            AttributeType: N
+          - AttributeName: active
+            AttributeType: N
         GlobalSecondaryIndexes:
           - IndexName: gsiUserPosts
             KeySchema:
               - AttributeName: authorSub
                 KeyType: HASH
               - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: gsiAllPostsSorted
+            KeySchema:
+              - AttributeName: active
+                KeyType: HASH
+              - AttributeName: date
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

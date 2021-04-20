@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
+from boto3.dynamodb.conditions import Key
 from pydantic import parse_obj_as
 
 from microblog.data.id import get_latest_id, update_id
@@ -9,12 +10,16 @@ from microblog.models.api import NewPost, NewPostWithMedia, Post, PostList
 from microblog.models.db import PostDoc
 from microblog.models.openid import OpenIdClaims
 from microblog.utils.clients import posts_table
-from microblog.utils.exceptions import AuthorizationError
+from microblog.utils.exceptions import AuthorizationError, NotFoundError
 from microblog.utils.odm import PostODM
 
 
 def get_posts() -> PostList:
-    res = posts_table().scan()
+    res = posts_table().query(
+        IndexName='gsiAllPostsSorted',
+        KeyConditionExpression=Key('active').eq(1),
+        ScanIndexForward=False
+    )
     if 'Items' not in res:
         return PostList.parse_obj([])
 
@@ -23,10 +28,13 @@ def get_posts() -> PostList:
     return PostList.parse_obj([PostODM.get_object(doc) for doc in docs])
 
 
-def get_post(post_id: int) -> Optional[Post]:
+def get_post(post_id: int, user_claims: Optional[OpenIdClaims]) -> Optional[Post]:
     doc = get_post_doc(post_id)
     if doc is None:
-        return None
+        raise NotFoundError('Post does not exist')
+    elif not doc.active:
+        if not user_claims or (user_claims and user_claims.sub != doc.authorSub):
+            raise AuthorizationError('User is not allowed to view this post')
 
     return PostODM.get_object(doc)
 
@@ -38,7 +46,8 @@ def post_post(post: NewPost, user_claims: OpenIdClaims) -> Post:
         authorSub=user_claims.sub,
         title=post.title,
         textContent=post.textContent,
-        date=int(datetime.now().timestamp())
+        date=int(datetime.now().timestamp()),
+        imageId=None
     )
 
     put_post_doc(new_post_doc)
@@ -53,7 +62,9 @@ def post_post_w_media(post_data: NewPostWithMedia, user_claims: OpenIdClaims) ->
 
 def update_post(post_id: int, post: NewPost, user_claims: OpenIdClaims) -> Post:
     doc = get_post_doc(post_id)
-    if doc.authorSub != user_claims.sub:
+    if doc is None:
+        raise NotFoundError('Post does not exist')
+    elif doc.authorSub != user_claims.sub:
         raise AuthorizationError('User is not authorized to edit this post')
 
     posts_table().update_item(
@@ -77,12 +88,20 @@ def update_post_w_media(post_id: int, post_data: NewPostWithMedia, user_claims: 
 
 def delete_post(post_id: int, user_claims: OpenIdClaims) -> Post:
     doc = get_post_doc(post_id)
+    if not doc:
+        raise NotFoundError('Post does not exist')
     if doc.authorSub != user_claims.sub:
         raise AuthorizationError('User is not authorized to delete this post')
+    elif not doc.active:
+        raise AuthorizationError('Post already deleted')
 
-    posts_table().delete_item(
+    posts_table().update_item(
         Key={
-            'id': post_id
+            'id': post_id,
+        },
+        UpdateExpression='SET active = :a',
+        ExpressionAttributeValues={
+            ':a': 0
         }
     )
 
