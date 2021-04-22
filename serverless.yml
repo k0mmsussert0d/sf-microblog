@@ -209,6 +209,10 @@ package:
     - venv/**
 plugins:
   - serverless-python-requirements
+  - serverless-offline
 custom:
   pythonRequirements:
     dockerizePip: non-linux
+  serverless-offline:
+    ignoreJWTSignature: true
+    noAuth: true
