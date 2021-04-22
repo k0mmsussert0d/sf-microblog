@@ -1,4 +1,4 @@
-service: sf-microblog
+service: sf-microblog-shared
 frameworkVersion: '2'
 
 useDotenv: true
@@ -8,106 +8,67 @@ provider:
   lambdaHashingVersion: '20201221'
   environment:
     DOMAIN_PREFIX: ${self:service}-${opt:stage, self:provider.stage, 'dev'}
+    API_GATEWAY: ${self:provider.environment.DOMAIN_PREFIX}-api-gw
     POSTS_TABLE: ${self:provider.environment.DOMAIN_PREFIX}-posts-table
     COMMENTS_TABLE: ${self:provider.environment.DOMAIN_PREFIX}-comments-table
     COGNITO_USER_POOL: ${self:provider.environment.DOMAIN_PREFIX}-user-pool
-    COGNITO_USER_POOL_ID:
-      Ref: userPool
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}"
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}"
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}/index/*"
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}/index/*"
-    - Effect: Allow
-      Action:
-        - cognito-idp:ListUsers
-      Resource:
-        - Fn::Join:
-          - ''
-          - - "arn:aws:cognito-idp:${opt:region, self:provider.region}:*:userpool/"
-            - Ref: userPool
-  httpApi:
-    cors: true
-    authorizers:
-      userPoolAuthorizer:
-        identitySource: $request.header.Authorization
-        issuerUrl: 
-          Fn::Join:
-          - ''
-          - - 'https://cognito-idp.'
-            - '${opt:region, self:provider.region}'
-            - '.amazonaws.com/'
-            - Ref: userPool
-        audience:
-          - Ref: userPoolClient
-
-functions:
-  posts:
-    handler: microblog.handlers.posts
-    events:
-      - httpApi:
-          path: /post
-          method: GET
-      - httpApi:
-          path: /post
-          method: POST
-          authorizer: userPoolAuthorizer
-      - httpApi:
-          path: /post/{id}
-          method: GET
-      - httpApi:
-          path: /post/{id}
-          method: PUT
-          authorizer: userPoolAuthorizer
-      - httpApi:
-          path: /post/{id}
-          method: DELETE
-          authorizer: userPoolAuthorizer
-  comment:
-    handler: microblog.handlers.comment
-    events:
-      - httpApi:
-          path: /comment
-          method: POST
-          authorizer: userPoolAuthorizer
-      - httpApi:
-          path: /comment/{id}
-          method: PUT
-          authorizer: userPoolAuthorizer
-      - httpApi:
-          path: /comment/{id}
-          method: DELETE
-          authorizer: userPoolAuthorizer
-  user:
-    handler: microblog.handlers.user
-    events:
-      - httpApi:
-          path: /user
-          method: GET
-          authorizer: userPoolAuthorizer
-      - httpApi:
-          path: /user
-          method: PUT
-          authorizer: userPoolAuthorizer
-      - httpApi:
-          path: /user/{username}
-          method: GET
 
 resources:
   Resources:
     HttpApi:
       Type: 'AWS::ApiGatewayV2::Api'
-      DependsOn: userPool
-    userPool:
+      DependsOn: UserPool
+      Properties:
+        Name: ${self:provider.environment.API_GATEWAY}
+        ProtocolType: HTTP
+        CorsConfiguration:
+          AllowOrigins:
+            - '*'
+          AllowHeaders:
+            - 'Content-Type'
+            - 'X-Amz-Date'
+            - 'Authorization'
+            - 'X-Api-Key'
+            - 'X-Amz-Security-Token'
+            - 'X-Amz-User-Agent'
+          AllowMethods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+
+    HttpApiAuthorizer:
+      Type: 'AWS::ApiGatewayV2::Authorizer'
+      Properties:
+        Name: ${self:provider.environment.API_GATEWAY}-authorizer
+        ApiId:
+          Ref: HttpApi
+        AuthorizerType: JWT
+        IdentitySource:
+          - $request.header.Authorization
+        JwtConfiguration:
+          Audience:
+            - Ref: UserPoolClient
+          Issuer:
+            Fn::Join:
+              - ''
+              - - 'https://cognito-idp.'
+                - '${opt:region, self:provider.region}'
+                - '.amazonaws.com/'
+                - Ref: UserPool
+
+    HttpApiStage:
+      Type: 'AWS::ApiGatewayV2::Stage'
+      Properties:
+        ApiId:
+          Ref: HttpApi
+        StageName: '$default'
+        AutoDeploy: true
+        DefaultRouteSettings:
+          DetailedMetricsEnabled: false
+
+    UserPool:
       Type: 'AWS::Cognito::UserPool'
       Properties:
         UserPoolName: ${self:provider.environment.COGNITO_USER_POOL}
@@ -115,7 +76,8 @@ resources:
           - email
         AutoVerifiedAttributes:
           - email
-    userPoolClient:
+
+    UserPoolClient:
       Type: 'AWS::Cognito::UserPoolClient'
       Properties:
         ClientName: ${self:provider.environment.DOMAIN_PREFIX}-user-pool-client
@@ -129,21 +91,23 @@ resources:
           - profile
           - aws.cognito.signin.user.admin
         UserPoolId:
-          Ref: userPool
-        CallbackURLs: 
+          Ref: UserPool
+        CallbackURLs:
           - https://localhost:3000
         ExplicitAuthFlows:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
         GenerateSecret: false
-        SupportedIdentityProviders: 
+        SupportedIdentityProviders:
           - COGNITO
-    userPoolDomain:
+
+    UserPoolDomain:
       Type: 'AWS::Cognito::UserPoolDomain'
       Properties:
-        UserPoolId: 
-          Ref: userPool
+        UserPoolId:
+          Ref: UserPool
         Domain: ${self:provider.environment.DOMAIN_PREFIX}-user-pool-domain
+
     PostsTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -178,6 +142,7 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
+
     CommentsTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -200,19 +165,41 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
-package:
-  exclude:
-    - .aws-sam/**
-    - .idea/**
-    - tests/**
-    - node_modules/**
-    - venv/**
-plugins:
-  - serverless-python-requirements
-  - serverless-offline
-custom:
-  pythonRequirements:
-    dockerizePip: non-linux
-  serverless-offline:
-    ignoreJWTSignature: true
-    noAuth: true
+
+
+  Outputs:
+    HttpApiId:
+      Value:
+        Ref: HttpApi
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-HttpApiId
+
+    HttpApiAuthorizerId:
+      Value:
+        Ref: HttpApiAuthorizer
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-HttpApiAuthorizerId
+
+    CognitoUserPoolId:
+      Value:
+        Ref: UserPool
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-CognitoUserPoolId
+
+    CognitoUserPoolClientId:
+      Value:
+        Ref: UserPoolClient
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-CognitoUserPoolClientId
+
+    PostsTableName:
+      Value:
+        Ref: PostsTable
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-PostsTableName
+
+    CommentsTableName:
+      Value:
+        Ref: CommentsTable
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-CommentsTableName

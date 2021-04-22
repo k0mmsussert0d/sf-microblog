@@ -1,0 +1,113 @@
+service: sf-microblog
+frameworkVersion: '2'
+
+useDotenv: true
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: '20201221'
+  environment:
+    DOMAIN_PREFIX: ${self:service}-${opt:stage, self:provider.stage, 'dev'}
+    POSTS_TABLE: ${cf:${self:custom.stacks.shared}.PostsTableName}
+    COMMENTS_TABLE: ${cf:${self:custom.stacks.shared}.CommentsTableName}
+    COGNITO_USER_POOL_ID: ${cf:${self:custom.stacks.shared}.CognitoUserPoolId}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}"
+            - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}"
+            - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.POSTS_TABLE}/index/*"
+            - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.COMMENTS_TABLE}/index/*"
+        - Effect: Allow
+          Action:
+            - cognito-idp:ListUsers
+          Resource:
+            - "arn:aws:cognito-idp:${opt:region, self:provider.region}:*:userpool/${self:provider.environment.COGNITO_USER_POOL_ID}"
+  httpApi:
+    id:
+      'Fn::ImportValue': ${self:custom.stacks.shared}-HttpApiId
+
+functions:
+  posts:
+    handler: microblog.handlers.posts
+    events:
+      - httpApi:
+          path: /post
+          method: GET
+      - httpApi:
+          path: /post
+          method: POST
+          authorizer: ${self:custom.resources.authorizer}
+      - httpApi:
+          path: /post/{id}
+          method: GET
+      - httpApi:
+          path: /post/{id}
+          method: PUT
+          authorizer: ${self:custom.resources.authorizer}
+      - httpApi:
+          path: /post/{id}
+          method: DELETE
+          authorizer: ${self:custom.resources.authorizer}
+  comment:
+    handler: microblog.handlers.comment
+    events:
+      - httpApi:
+          path: /comment
+          method: POST
+          authorizer: ${self:custom.resources.authorizer}
+      - httpApi:
+          path: /comment/{id}
+          method: PUT
+          authorizer: ${self:custom.resources.authorizer}
+      - httpApi:
+          path: /comment/{id}
+          method: DELETE
+          authorizer: ${self:custom.resources.authorizer}
+  user:
+    handler: microblog.handlers.user
+    events:
+      - httpApi:
+          path: /user
+          method: GET
+          authorizer: ${self:custom.resources.authorizer}
+      - httpApi:
+          path: /user
+          method: PUT
+          authorizer: ${self:custom.resources.authorizer}
+      - httpApi:
+          path: /user/{username}
+          method: GET
+
+package:
+  exclude:
+    - .aws-sam/**
+    - .idea/**
+    - tests/**
+    - node_modules/**
+    - venv/**
+plugins:
+  - serverless-python-requirements
+  - serverless-offline
+custom:
+  stacks:
+    shared: ${self:service}-shared-${opt:stage, self:provider.stage, 'dev'}
+  resources:
+    authorizer:
+      type: jwt
+      id:
+        'Fn::ImportValue': ${self:custom.stacks.shared}-HttpApiAuthorizerId
+  pythonRequirements:
+    dockerizePip: non-linux
+  serverless-offline:
+    ignoreJWTSignature: true
+    noAuth: true
