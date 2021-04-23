@@ -20,7 +20,7 @@ def posts(event, _):
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
     method = event.request_context.http.method
     path_params = event.path_parameters
-    content_type = event.headers.get('Content-Type', 'application/json')
+    content_type = event.headers.get('content-type', 'application/json')
     if authorizer := event.request_context.authorizer:
         user_claims = OpenIdClaims.parse_obj(authorizer.jwt_claim)
     else:
@@ -49,8 +49,9 @@ def posts(event, _):
                         }
                     }
 
-                elif content_type == 'multipart/form-data':
+                elif 'multipart/form-data' in content_type:
                     # noinspection PyTypeChecker
+                    logger.debug(event)
                     body: NewPostWithMedia = parse(event, NewPostWithMedia, ApiGatewayProxyV2Envelope)
                     return {
                         'statusCode': 201,

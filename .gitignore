@@ -17,10 +17,10 @@ var/
 *.egg
 
 # Serverless directories
-.serverless
+.serverless/
 node_modules/
 
 .idea/
 venv/
 .aws-sam/
-typins/
+typings/
