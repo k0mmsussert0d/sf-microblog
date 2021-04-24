@@ -166,6 +166,27 @@ resources:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
 
+    UploadsBucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: ${self:provider.environment.DOMAIN_PREFIX}-uploads-bucket
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - "PUT"
+                - "POST"
+                - "DELETE"
+              AllowedOrigins:
+                - "https://*.amazonaws.com"
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - "GET"
+              AllowedOrigins:
+                - "*"
+
 
   Outputs:
     HttpApiId:
@@ -203,3 +224,9 @@ resources:
         Ref: CommentsTable
       Export:
         Name: ${self:provider.environment.DOMAIN_PREFIX}-CommentsTableName
+
+    UploadsBucketName:
+      Value:
+        Ref: UploadsBucket
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}

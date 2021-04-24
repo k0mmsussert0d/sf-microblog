@@ -35,6 +35,7 @@ class ApiGatewayProxyV2Envelope(BaseEnvelope):
                 if part.headers[b'Content-Type'] == b'application/json':
                     value = json.loads(part.text)
                 elif b'image' in part.headers[b'Content-Type']:
+                    body['content_type'] = part.headers[b'Content-Type'].decode()
                     value = part.content
                 else:
                     value = part.text
@@ -51,4 +52,3 @@ class ApiGatewayProxyV2Envelope(BaseEnvelope):
             if field_name in part:
                 return part.split('name=', 1)[1].strip('"')
         return None
-

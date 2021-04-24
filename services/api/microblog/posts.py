@@ -1,16 +1,20 @@
+import base64
+import hashlib
 from datetime import datetime
 from typing import List, Optional
 
 from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
 from pydantic import parse_obj_as
 
 from microblog.data.id import get_latest_id, update_id
-from microblog.data.posts import get_post_doc, put_post_doc
+from microblog.data.posts import get_post_doc, put_post_doc, upload_file
 from microblog.models.api import NewPost, NewPostWithMedia, Post, PostList
 from microblog.models.db import PostDoc
+from microblog.models.middle import NewPostWithMediaMiddle
 from microblog.models.openid import OpenIdClaims
 from microblog.utils.clients import posts_table
-from microblog.utils.exceptions import AuthorizationError, NotFoundError
+from microblog.utils.exceptions import AuthorizationError, NotFoundError, InternalError
 from microblog.utils.odm import PostODM
 
 
@@ -56,8 +60,33 @@ def post_post(post: NewPost, user_claims: OpenIdClaims) -> Post:
     return PostODM.get_object(new_post_doc)
 
 
-def post_post_w_media(post_data: NewPostWithMedia, user_claims: OpenIdClaims) -> Post:
-    pass
+def post_post_w_media(post_data: NewPostWithMediaMiddle, user_claims: OpenIdClaims) -> Post:
+    md5 = hashlib.md5(post_data.mediaData)
+    file_id = md5.hexdigest()
+    post_id = get_latest_id() + 1
+
+    new_post_doc = PostDoc(
+        id=post_id,
+        authorSub=user_claims.sub,
+        title=post_data.postDetails.title,
+        textContent=post_data.postDetails.textContent,
+        date=int(datetime.now().timestamp()),
+        imageId=file_id
+    )
+
+    try:
+        upload_file(
+            post_data.mediaData,
+            file_id,
+            post_data.content_type,
+            md5=base64.b64encode(md5.digest()).decode('utf-8')
+        )
+    except ClientError:
+        raise InternalError('There was in issue while uploading the file to S3 bucket')
+    put_post_doc(new_post_doc)
+    update_id(post_id)
+
+    return PostODM.get_object(new_post_doc)
 
 
 def update_post(post_id: int, post: NewPost, user_claims: OpenIdClaims) -> Post:

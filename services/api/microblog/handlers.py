@@ -4,6 +4,7 @@ from aws_lambda_powertools.utilities.parser import parse, ValidationError
 
 from microblog.comment import post_comment, update_comment, delete_comment
 from microblog.models.api import NewPost, NewPostWithMedia, NewComment, NewUserDetails
+from microblog.models.middle import NewPostWithMediaMiddle
 from microblog.models.openid import OpenIdClaims
 from microblog.posts import get_posts, post_post, get_post, update_post, delete_post, post_post_w_media, \
     update_post_w_media
@@ -11,13 +12,13 @@ from microblog.user import get_user_self_details, update_user_self_details, get_
 from microblog.utils.exceptions import AuthorizationError, NotFoundError
 from microblog.utils.parser import ApiGatewayProxyV2Envelope
 
-
 logger = Logger()
 
 
 @logger.inject_lambda_context()
 def posts(event, _):
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
+    logger.debug(event)
     method = event.request_context.http.method
     path_params = event.path_parameters
     content_type = event.headers.get('content-type', 'application/json')
@@ -51,8 +52,7 @@ def posts(event, _):
 
                 elif 'multipart/form-data' in content_type:
                     # noinspection PyTypeChecker
-                    logger.debug(event)
-                    body: NewPostWithMedia = parse(event, NewPostWithMedia, ApiGatewayProxyV2Envelope)
+                    body: NewPostWithMediaMiddle = parse(event, NewPostWithMediaMiddle, ApiGatewayProxyV2Envelope)
                     return {
                         'statusCode': 201,
                         'body': post_post_w_media(body, user_claims).json()

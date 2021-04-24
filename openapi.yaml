@@ -25,7 +25,7 @@ paths:
     post:
       description: Adds a new post
       responses:
-        200:
+        201:
           description: Newly added post
           content:
             application/json:

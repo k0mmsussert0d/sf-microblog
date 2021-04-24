@@ -32,6 +32,7 @@ class PostODM:
             'textContent': document.textContent,
             'comments': [CommentODM.get_object(d) for d in get_comments_for_post(document.id)],
             'date': datetime.fromtimestamp(document.date),
+            'imageId': document.imageId,
         })
 
     @staticmethod
