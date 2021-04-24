@@ -19,7 +19,7 @@ def get_post_doc(post_id: int) -> Optional[PostDoc]:
 
     if db_doc := res.get('Item'):
         db_doc['active'] = (db_doc['active'] == 1)
-        return PostDoc.parse_obj(res['Item'])
+        return PostDoc.parse_obj(db_doc)
 
     return None
 

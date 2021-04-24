@@ -18,3 +18,5 @@ class CommentDoc(BaseModel):
     authorSub: str
     content: str
     date: int
+    postId: int
+    active: bool = True

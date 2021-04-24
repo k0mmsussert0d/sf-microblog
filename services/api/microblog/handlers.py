@@ -145,33 +145,53 @@ def comment(event, _):
     path_params = event.path_parameters
     user_claims = OpenIdClaims.parse_obj(event.request_context.authorizer.jwt_claim)
 
-    if not path_params:
-        if method == 'POST':
-            # noinspection PyTypeChecker
-            body: NewComment = parse(event, NewComment, ApiGatewayProxyV2Envelope)
-            return {
-                'statusCode': 200,
-                'body': post_comment(body, user_claims).json()
-            }
+    try:
+        if not path_params:
+            if method == 'POST':
+                # noinspection PyTypeChecker
+                body: NewComment = parse(event, NewComment, ApiGatewayProxyV2Envelope)
+                return {
+                    'statusCode': 200,
+                    'body': post_comment(body, user_claims).json()
+                }
 
-    elif 'id' in path_params:
-        comment_id = int(path_params['id'])
-        if method == 'PUT':
-            # noinspection PyTypeChecker
-            body: NewComment = parse(event, NewComment, ApiGatewayProxyV2Envelope)
-            return {
-                'statusCode': 200,
-                'body': update_comment(comment_id, body, user_claims).json()
-            }
+        elif 'id' in path_params:
+            comment_id = int(path_params['id'])
+            if method == 'PUT':
+                # noinspection PyTypeChecker
+                body: NewComment = parse(event, NewComment, ApiGatewayProxyV2Envelope)
+                try:
+                    return {
+                        'statusCode': 200,
+                        'body': update_comment(comment_id, body, user_claims).json()
+                    }
+                except AssertionError:
+                    return {
+                        'statusCode': 400
+                    }
+                except AuthorizationError:
+                    return {
+                        'statusCode': 403
+                    }
+                except NotFoundError:
+                    return {
+                        'statusCode': 404
+                    }
 
-        elif method == 'DELETE':
-            delete_comment(comment_id, user_claims)
-            return {
-                'statusCode': 204
-            }
+            elif method == 'DELETE':
+                delete_comment(comment_id, user_claims)
+                return {
+                    'statusCode': 204
+                }
+    except ValidationError as e:
+        logger.error(e.errors(), exc_info=True)
+        return {
+            'statusCode': 400,
+            'body': 'Malformed request body'
+        }
 
     return {
-        'statusCode': 401
+        'statusCode': 405
     }
 
 
