@@ -3,6 +3,37 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {Amplify, Auth} from 'aws-amplify';
+import Config from './config';
+
+Amplify.configure({
+  Auth: {
+    mandatorySignIn: false,
+    region: Config.apiGateway.REGION,
+    userPoolId: Config.cognito.USER_POOL_ID,
+    userPoolWebClientId: Config.cognito.APP_CLIENT_ID
+  },
+  API: {
+    endpoints: [
+      {
+        name: 'api',
+        endpoint: Config.apiGateway.URL,
+        region: Config.apiGateway.REGION,
+        custom_header: async () => {
+          Auth.currentSession()
+            .then(session => {
+              return {
+                Authorization: `Bearer ${session.getIdToken().getJwtToken()}`
+              };
+            })
+            .catch(() => {
+              return {};
+            });
+        }
+      }
+    ]
+  }
+});
 
 ReactDOM.render(
   <React.StrictMode>
