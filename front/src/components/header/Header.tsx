@@ -1,6 +1,6 @@
 import { Navbar, Button } from 'rbx';
-import React from 'react';
-import {ReactElement} from 'react';
+import React, {ReactElement} from 'react';
+import './Header.scss';
 import {Link, Redirect} from 'react-router-dom';
 import {useAppContext} from '../../utils/contextLib';
 import {Auth} from 'aws-amplify';
@@ -73,6 +73,7 @@ const Header: React.FC = (): ReactElement => {
             />
           </Navbar.Item>
         </Link>
+        <Navbar.Burger />
       </Navbar.Brand>
       {isAuthenticated ? signedInOptions() : signedOutOptions()}
     </Navbar>

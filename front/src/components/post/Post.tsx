@@ -57,7 +57,7 @@ const PostComp = (post: Post): ReactElement => {
           </Content>
           <Level breakpoint="mobile">
             <Level.Item align="left">
-              <Level.Item as="a">
+              <Level.Item>
                 <Icon size="small">
                   <FontAwesomeIcon icon={faComment}/>
                 </Icon>
