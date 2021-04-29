@@ -7,6 +7,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import Header from './components/header/Header';
 import {Generic} from 'rbx';
 import Main from './views/Main';
+import SignUp from './views/SignUp';
 
 
 const App: React.FC = (): ReactElement => {
@@ -37,6 +38,9 @@ const App: React.FC = (): ReactElement => {
         <Header />
         <Generic as='div' className='main-wrapper'>
           <Switch>
+            <Route path='/signup'>
+              <SignUp />
+            </Route>
             <Route path='/'>
               <Main />
             </Route>

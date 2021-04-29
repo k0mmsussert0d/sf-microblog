@@ -3,7 +3,7 @@ import './Post.scss';
 import {Content, Generic, Icon, Image, Level, Media} from 'rbx';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faComment} from '@fortawesome/free-solid-svg-icons';
-import {Post} from '../../utils/models';
+import {Post} from '../../models/API';
 import {Link} from 'react-router-dom';
 
 const PostComp = (post: Post): ReactElement => {

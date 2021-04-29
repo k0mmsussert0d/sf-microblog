@@ -1,4 +1,4 @@
-import {NewComment, NewPost, NewPostWithMedia, NewUserDetails, Post, UserDetails, UserSummary} from './models';
+import {NewComment, NewPost, NewPostWithMedia, NewUserDetails, Post, UserDetails, UserSummary} from '../models/API';
 import {API as AwsApi} from 'aws-amplify';
 
 const API_NAME = 'api';
