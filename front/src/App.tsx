@@ -8,6 +8,7 @@ import Header from './components/header/Header';
 import {Generic} from 'rbx';
 import Main from './views/Main';
 import SignUp from './views/SignUp';
+import Login from './views/Login';
 
 
 const App: React.FC = (): ReactElement => {
@@ -38,6 +39,9 @@ const App: React.FC = (): ReactElement => {
         <Header />
         <Generic as='div' className='main-wrapper'>
           <Switch>
+            <Route path='/login'>
+              <Login />
+            </Route>
             <Route path='/signup'>
               <SignUp />
             </Route>
