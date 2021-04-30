@@ -1,9 +1,8 @@
 import React, {ReactElement} from 'react';
-import {FieldError, useController, UseControllerProps} from 'react-hook-form';
+import {FieldError, FieldValues, useController, UseControllerProps} from 'react-hook-form';
 import {Help, Input} from 'rbx';
-import {SignUpFormForms} from '../signup/SignUpForm';
 
-export const ControlledInput: React.FC<ControlledInputProps> = (props: ControlledInputProps): ReactElement => {
+export const ControlledInput = <T extends FieldValues>(props: ControlledInputProps<T>): ReactElement<ControlledInputProps<T>> => {
   const {field, fieldState} = useController(props);
 
   return (
@@ -19,7 +18,7 @@ export const ControlledInput: React.FC<ControlledInputProps> = (props: Controlle
   );
 };
 
-export interface ControlledInputProps extends UseControllerProps<SignUpFormForms> {
+export interface ControlledInputProps<T> extends UseControllerProps<T> {
   type?: 'number' | 'time' | 'text' | 'color' | 'date' | 'search' | 'email' | 'tel' | 'password' | undefined,
   placeholder?: string
   error?: FieldError | undefined

@@ -57,7 +57,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({setNewUser}: SignUpFormProps): R
     <form onSubmit={handleSubmit(submitRegistrationForm)}>
       <Field>
         <Control iconLeft>
-          <ControlledInput
+          <ControlledInput<SignUpFormForms>
             control={control}
             rules={{
               required: {
@@ -84,7 +84,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({setNewUser}: SignUpFormProps): R
       </Field>
       <Field>
         <Control iconLeft>
-          <ControlledInput
+          <ControlledInput<SignUpFormForms>
             control={control}
             rules={{
               required: {
@@ -105,7 +105,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({setNewUser}: SignUpFormProps): R
 
       <Field>
         <Control iconLeft>
-          <ControlledInput
+          <ControlledInput<SignUpFormForms>
             control={control}
             rules={{
               required: {
@@ -130,7 +130,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({setNewUser}: SignUpFormProps): R
 
       <Field>
         <Control iconLeft>
-          <ControlledInput
+          <ControlledInput<SignUpFormForms>
             control={control}
             rules={{
               required: {
