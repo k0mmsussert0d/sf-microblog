@@ -41,7 +41,7 @@ const Main: React.FC = (): ReactElement => {
   const renderPostsList = () => {
     return (
       <>
-        {posts.map((post: Post) => PostComp(post))}
+        {posts.map((post: Post) => PostComp({post: post}))}
       </>
     );
   };
