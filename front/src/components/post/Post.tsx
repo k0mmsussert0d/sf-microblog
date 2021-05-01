@@ -37,6 +37,10 @@ const PostComp: React.FC<Post> = (post: Post): ReactElement => {
     return Math.floor(seconds) + ' seconds';
   };
 
+  const formatTextContent = (textContent: string): string => {
+    return textContent.replaceAll(/\r\n|\r|\n/g, '<br />');
+  };
+
   return (
     <Media key={post.id}>
       <Media.Item as="figure" align="left">
@@ -61,7 +65,7 @@ const PostComp: React.FC<Post> = (post: Post): ReactElement => {
         <Content className='post-content' as={Link} to={`/${post.id}`}>
           <p>
             <h2 className='post-title'>{post.title}</h2>
-            <p className='post-text-content'>{post.textContent}</p>
+            <p className='post-text-content' dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
           </p>
         </Content>
         <Level breakpoint="mobile">
