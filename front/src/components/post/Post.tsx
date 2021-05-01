@@ -1,12 +1,14 @@
 import React, {ReactElement} from 'react';
-import './Post.scss';
 import {Content, Generic, Icon, Image, Level, Media} from 'rbx';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faComment} from '@fortawesome/free-solid-svg-icons';
 import {Post} from '../../models/API';
 import {Link} from 'react-router-dom';
+import './Post.scss';
 
-const PostComp = (post: Post): ReactElement => {
+const PostComp: React.FC<Post> = (post: Post): ReactElement => {
+
+  const postDate = new Date(post.date);
 
   const getRelativeTimestamp = (datetime: Date): string => {
     const seconds = Math.floor((new Date().getTime() - datetime.getTime())) / 1000;
@@ -45,30 +47,36 @@ const PostComp = (post: Post): ReactElement => {
           />
         </Image.Container>
       </Media.Item>
-      <Link to={`/${post.id}`}>
-        <Media.Item align="content">
-          <Content>
-            <p>
-              <strong className='post-author'>{post.author.username}</strong>
-              <small className='post-date'>{getRelativeTimestamp(new Date(post.date)) + 'ago'}</small>
-              <br/>
-              {post.textContent}
-            </p>
-          </Content>
-          <Level breakpoint="mobile">
-            <Level.Item align="left">
-              <Level.Item>
-                <Icon size="small">
-                  <FontAwesomeIcon icon={faComment}/>
-                </Icon>
-                <Generic as='div' className='comments-count'>
-                  {post.comments?.length}
-                </Generic>
-              </Level.Item>
+      <Media.Item align="content">
+        <Level as='nav' className='post-header'>
+          <Level.Item align='left'>
+            <Level.Item className='post-author' as={Link} to={`/user/${post.author.username}`}>
+              {post.author.username}
             </Level.Item>
-          </Level>
-        </Media.Item>
-      </Link>
+            <Level.Item className='post-date' tooltip={postDate.toLocaleString()}>
+              {getRelativeTimestamp(postDate) + ' ago'}
+            </Level.Item>
+          </Level.Item>
+        </Level>
+        <Content className='post-content' as={Link} to={`/${post.id}`}>
+          <p>
+            <h2 className='post-title'>{post.title}</h2>
+            <p className='post-text-content'>{post.textContent}</p>
+          </p>
+        </Content>
+        <Level breakpoint="mobile">
+          <Level.Item align="left" as={Link} to={`/${post.id}#comment`} className='post-comments-button'>
+            <Level.Item>
+              <Icon size="small">
+                <FontAwesomeIcon icon={faComment}/>
+              </Icon>
+              <Generic as='div' className='post-comments-count'>
+                {post.comments?.length}
+              </Generic>
+            </Level.Item>
+          </Level.Item>
+        </Level>
+      </Media.Item>
     </Media>
   );
 };

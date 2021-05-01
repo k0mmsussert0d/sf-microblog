@@ -1,7 +1,48 @@
-div.comments-count {
-  margin-left: 5px;
+@import '../shared/styles/underline';
+
+.media-content {
+  color: inherit;
+
+  .post-header {
+    margin-top: 0;
+    margin-bottom: 1em;
+
+    .post-author {
+      color: inherit;
+    }
+
+    .post-date {
+      margin-left: 10px;
+    }
+  }
+
+  .post-content {
+    color: inherit;
+
+    .post-title {
+      position: relative;
+      display: inline-block;
+      @include underline;
+    }
+
+    .post-text-content {
+      margin-bottom: 1em;
+    }
+
+    @include underline-hover('.post-title');
+  }
+
+  .post-comments-button {
+    @include underline;
+    @include underline-hover();
+
+    position: relative;
+    color: inherit;
+
+    .post-comments-count {
+      margin-left: 5px;
+    }
+  }
 }
 
-.post-date {
-  margin-left: 10px;
-}
+
