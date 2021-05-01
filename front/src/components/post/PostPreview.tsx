@@ -1,14 +1,16 @@
-import {Post} from '../../models/API';
 import React, {ReactElement} from 'react';
-import styles from './PostOpened.module.scss';
-import {Content, Image, Level, Media} from 'rbx';
+import styles from './PostPreview.module.scss';
+import {Content, Generic, Icon, Image, Level, Media} from 'rbx';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faComment} from '@fortawesome/free-solid-svg-icons';
+import {Post} from '../../models/API';
 import {Link} from 'react-router-dom';
 import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
 
-const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactElement => {
-  
+const PostComp: React.FC<PostCompProps> = ({post}: PostCompProps): ReactElement => {
+
   const postDate = new Date(post.date);
-  
+
   return (
     <Media key={post.id}>
       <Media.Item as="figure" align="left">
@@ -19,7 +21,7 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
           />
         </Image.Container>
       </Media.Item>
-      <Media.Item align="content">
+      <Media.Item align="content" className={styles.mediaContent}>
         <Level as='nav' className={styles.postHeader}>
           <Level.Item align='left'>
             <Level.Item className={styles.postAuthor} as={Link} to={`/user/${post.author.username}`}>
@@ -30,19 +32,31 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
             </Level.Item>
           </Level.Item>
         </Level>
-        <Content className={styles.postContent}>
+        <Content className={styles.postContent} as={Link} to={`/${post.id}`}>
           <p>
             <h2 className={styles.postTitle}>{post.title}</h2>
             <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
           </p>
         </Content>
+        <Level breakpoint="mobile">
+          <Level.Item align="left" as={Link} to={`/${post.id}#comment`} className={styles.postCommentsButton}>
+            <Level.Item>
+              <Icon size="small">
+                <FontAwesomeIcon icon={faComment}/>
+              </Icon>
+              <Generic as='div' className={styles.postCommentsCount}>
+                {post.comments?.length}
+              </Generic>
+            </Level.Item>
+          </Level.Item>
+        </Level>
       </Media.Item>
     </Media>
   );
 };
 
-export interface PostOpenedProps {
+export interface PostCompProps {
   post: Post
 }
 
-export default PostOpened;
+export default PostComp;

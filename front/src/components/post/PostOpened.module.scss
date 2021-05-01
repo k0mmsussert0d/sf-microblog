@@ -1,0 +1,26 @@
+.postHeader {
+  margin-top: 0;
+  margin-bottom: 1em;
+
+  .postAuthor {
+    color: inherit !important;
+  }
+
+  .postDate {
+    margin-left: 10px;
+  }
+}
+
+.postContent {
+  color: inherit;
+
+  .postTitle {
+    position: relative;
+    display: inline-block;
+  }
+
+  .postTextContent {
+    margin-bottom: 1em;
+  }
+}
+

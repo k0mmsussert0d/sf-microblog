@@ -1,45 +1,45 @@
 @import '../shared/styles/underline';
 
-.media-content {
+.mediaContent {
   color: inherit;
 
-  .post-header {
+  .postHeader {
     margin-top: 0;
     margin-bottom: 1em;
 
-    .post-author {
+    .postAuthor {
       color: inherit;
     }
 
-    .post-date {
+    .postDate {
       margin-left: 10px;
     }
   }
 
-  .post-content {
+  .postContent {
     color: inherit;
 
-    .post-title {
+    .postTitle {
       position: relative;
       display: inline-block;
       @include underline;
     }
 
-    .post-text-content {
+    .postTextContent {
       margin-bottom: 1em;
     }
 
-    @include underline-hover('.post-title');
+    @include underline-hover('.postTitle');
   }
 
-  .post-comments-button {
+  .postCommentsButton {
     @include underline;
     @include underline-hover();
 
     position: relative;
     color: inherit;
 
-    .post-comments-count {
+    .postCommentsCount {
       margin-left: 5px;
     }
   }

@@ -2,7 +2,7 @@ import React, {ReactElement, useEffect, useRef, useState} from 'react';
 import API from '../utils/API';
 import {Post} from '../models/API';
 import {Generic, PageLoader} from 'rbx';
-import PostComp from '../components/post/Post';
+import PostComp from '../components/post/PostPreview';
 
 const Main: React.FC = (): ReactElement => {
 

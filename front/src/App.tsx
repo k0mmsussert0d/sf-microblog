@@ -9,6 +9,7 @@ import {Generic} from 'rbx';
 import Main from './views/Main';
 import SignUp from './views/SignUp';
 import Login from './views/Login';
+import PostView from './views/PostView';
 
 
 const App: React.FC = (): ReactElement => {
@@ -45,6 +46,7 @@ const App: React.FC = (): ReactElement => {
             <Route path='/signup'>
               <SignUp />
             </Route>
+            <Route path='/:id' component={PostView} />
             <Route path='/'>
               <Main />
             </Route>
