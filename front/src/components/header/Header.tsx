@@ -41,14 +41,16 @@ const Header: React.FC = (): ReactElement => {
     return (
       <Navbar.Menu>
         <Navbar.Segment align="start">
-          <Link to='/lists'>
-            <Navbar.Item as='div'>Lists</Navbar.Item>
-          </Link>
-          <Navbar.Item>Profile</Navbar.Item>
+          <Navbar.Item as={Link} to='/'>
+              Home
+          </Navbar.Item>
         </Navbar.Segment>
         <Navbar.Segment align="end">
           <Navbar.Item>
             <Button.Group>
+              <Button color='light' as={Link} to='/profile'>
+                Profile
+              </Button>
               <Button color="primary" onClick={performLogout}>
                 <strong>Log out</strong>
               </Button>
