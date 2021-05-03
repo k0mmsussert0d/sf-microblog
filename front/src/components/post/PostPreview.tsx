@@ -33,10 +33,8 @@ const PostComp: React.FC<PostCompProps> = ({post}: PostCompProps): ReactElement 
           </Level.Item>
         </Level>
         <Content className={styles.postContent} as={Link} to={`/${post.id}`}>
-          <p>
-            <h2 className={styles.postTitle}>{post.title}</h2>
-            <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
-          </p>
+          <h2 className={styles.postTitle}>{post.title}</h2>
+          <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
         </Content>
         <Level breakpoint="mobile">
           <Level.Item align="left" as={Link} to={`/${post.id}#comment`} className={styles.postCommentsButton}>

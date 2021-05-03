@@ -31,10 +31,8 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
           </Level.Item>
         </Level>
         <Content className={styles.postContent}>
-          <p>
-            <h2 className={styles.postTitle}>{post.title}</h2>
-            <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
-          </p>
+          <h2 className={styles.postTitle}>{post.title}</h2>
+          <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
         </Content>
       </Media.Item>
     </Media>
