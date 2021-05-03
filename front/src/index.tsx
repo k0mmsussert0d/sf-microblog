@@ -20,7 +20,7 @@ Amplify.configure({
         endpoint: Config.apiGateway.URL,
         region: Config.apiGateway.REGION,
         custom_header: async () => {
-          Auth.currentSession()
+          return Auth.currentSession()
             .then(session => {
               return {
                 Authorization: `Bearer ${session.getIdToken().getJwtToken()}`
@@ -30,6 +30,9 @@ Amplify.configure({
               return {};
             });
         }
+        // custom_header: async () => {
+        //   return { Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`};
+        // }
       }
     ]
   }

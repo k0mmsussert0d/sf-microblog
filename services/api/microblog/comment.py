@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from microblog.data.comments import get_comment_doc, put_comment_doc
-from microblog.data.id import get_latest_id
+from microblog.data.id import get_latest_id, update_id
 from microblog.data.posts import get_post_doc
 from microblog.models.api import NewComment, Comment
 from microblog.models.db import CommentDoc
@@ -27,6 +27,7 @@ def post_comment(comment: NewComment, user_claims: OpenIdClaims) -> Comment:
     )
 
     put_comment_doc(comment_doc)
+    update_id(comment_id)
 
     return CommentODM.get_object(comment_doc)
 

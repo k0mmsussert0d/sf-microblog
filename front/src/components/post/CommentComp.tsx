@@ -2,7 +2,7 @@ import React, {ReactElement} from 'react';
 import styles from './CommentComp.module.scss';
 import {Media, Image, Content, Level} from 'rbx';
 import {Comment} from '../../models/API';
-import {getRelativeTimestamp} from '../../utils/viewLib';
+import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
 import {Link} from 'react-router-dom';
 
 const CommentComp: React.FC<CommentCompProps> = ({comment}: CommentCompProps): ReactElement => {
@@ -27,9 +27,7 @@ const CommentComp: React.FC<CommentCompProps> = ({comment}: CommentCompProps): R
             </Level.Item>
           </Level.Item>
         </Level>
-        <Content>
-          {comment.content}
-        </Content>
+        <Content dangerouslySetInnerHTML={{__html: formatTextContent(comment.content)}} />
       </Media.Item>
     </Media>
   );

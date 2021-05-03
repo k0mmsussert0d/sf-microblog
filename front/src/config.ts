@@ -13,12 +13,12 @@ export interface MicroblogConfig {
 const Config: MicroblogConfig = {
   apiGateway: {
     REGION: 'us-east-1',
-    URL: 'https://rmrpwogse3.execute-api.us-east-1.amazonaws.com'
+    URL: 'https://u40953qlka.execute-api.us-east-1.amazonaws.com'
   },
   cognito: {
     REGION: 'us-east-1',
-    USER_POOL_ID: 'us-east-1_QOHfMx2ur',
-    APP_CLIENT_ID: '5rv1ni1fa3ccsfanme4luck1gc'
+    USER_POOL_ID: 'us-east-1_i8Vdkm3Ae',
+    APP_CLIENT_ID: '2jgprmflb3bpd6ftmn301n377c'
   }
 };
 
