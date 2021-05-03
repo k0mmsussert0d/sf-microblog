@@ -4,13 +4,14 @@ import styles from './PostOpened.module.scss';
 import {Content, Image, Level, Media} from 'rbx';
 import {Link} from 'react-router-dom';
 import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
+import CommentComp from './CommentComp';
 
 const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactElement => {
   
   const postDate = new Date(post.date);
-  
+
   return (
-    <Media key={post.id}>
+    <Media key={post.id} as='article'>
       <Media.Item as="figure" align="left">
         <Image.Container as="p" size={64}>
           <Image
@@ -34,6 +35,9 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
           <h2 className={styles.postTitle}>{post.title}</h2>
           <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
         </Content>
+        {post.comments && post.comments.map((comment) => (
+          <CommentComp comment={comment} key={comment.id} />
+        ))}
       </Media.Item>
     </Media>
   );
