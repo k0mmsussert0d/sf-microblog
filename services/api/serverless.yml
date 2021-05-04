@@ -99,6 +99,12 @@ functions:
       - httpApi:
           path: /user/{username}
           method: GET
+  media:
+    handler: microblog.handlers.media
+    events:
+      - httpApi:
+          path: /img/{id}
+          method: GET
 
 package:
   exclude:

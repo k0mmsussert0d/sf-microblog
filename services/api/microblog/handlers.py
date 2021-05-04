@@ -1,8 +1,11 @@
+import base64
+
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEventV2
 from aws_lambda_powertools.utilities.parser import parse, ValidationError
 
 from microblog.comment import post_comment, update_comment, delete_comment
+from microblog.media import get_media_from_s3
 from microblog.models.api import NewPost, NewPostWithMedia, NewComment, NewUserDetails
 from microblog.models.middle import NewPostWithMediaMiddle
 from microblog.models.openid import OpenIdClaims
@@ -226,4 +229,33 @@ def user(event, _):
 
     return {
         'statusCode': 401
+    }
+
+
+@logger.inject_lambda_context()
+def media(event, _):
+    event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
+    logger.debug(event)
+    method = event.request_context.http.method
+    path_params = event.path_parameters
+
+    if 'id' in path_params:
+        if method == 'GET':
+            try:
+                obj = get_media_from_s3(path_params['id'])
+                return {
+                    'statusCode': 200,
+                    'body': base64.b64encode(obj.content),
+                    'headers': {
+                        'Content-Type': obj.content_type
+                    },
+                    'isBase64Encoded': True
+                }
+            except NotFoundError:
+                return {
+                    'statusCode': 404
+                }
+
+    return {
+        'statusCode': 405
     }
