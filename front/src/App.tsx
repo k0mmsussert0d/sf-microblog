@@ -10,6 +10,7 @@ import Main from './views/Main';
 import SignUp from './views/SignUp';
 import Login from './views/Login';
 import PostView from './views/PostView';
+import AddPost from './views/AddPost';
 
 
 const App: React.FC = (): ReactElement => {
@@ -45,6 +46,9 @@ const App: React.FC = (): ReactElement => {
             </Route>
             <Route path='/signup'>
               <SignUp />
+            </Route>
+            <Route path='/add'>
+              <AddPost />
             </Route>
             <Route path='/:id' component={PostView} />
             <Route path='/'>

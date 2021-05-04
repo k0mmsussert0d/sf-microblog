@@ -45,7 +45,7 @@ const Header: React.FC = (): ReactElement => {
         <Navbar.Segment align="start">
           <Navbar.Item>
             <Button.Group>
-              <Button color='light'>
+              <Button color='light' as={Link} to='/add'>
                 <Icon size='small'>
                   <FontAwesomeIcon icon={faPlus} />
                 </Icon>

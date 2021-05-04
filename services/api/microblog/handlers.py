@@ -39,7 +39,7 @@ def posts(event, _):
                 }
 
             elif method == 'POST':
-                if content_type == 'application/json':
+                if 'application/json' in content_type:
                     # noinspection PyTypeChecker
                     body: NewPost = parse(event, NewPost, ApiGatewayProxyV2Envelope)
                     return {
