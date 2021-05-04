@@ -1,11 +1,12 @@
 import React, {ReactElement} from 'react';
 import styles from './PostPreview.module.scss';
-import {Content, Generic, Icon, Image, Level, Media} from 'rbx';
+import {Content, Generic, Icon, Image, Level, Media, Title} from 'rbx';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faComment} from '@fortawesome/free-solid-svg-icons';
 import {Post} from '../../models/API';
 import {Link} from 'react-router-dom';
 import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
+import Config from '../../config';
 
 const PostComp: React.FC<PostCompProps> = ({post}: PostCompProps): ReactElement => {
 
@@ -32,10 +33,18 @@ const PostComp: React.FC<PostCompProps> = ({post}: PostCompProps): ReactElement 
             </Level.Item>
           </Level.Item>
         </Level>
-        <Content className={styles.postContent} as={Link} to={`/${post.id}`}>
-          <h2 className={styles.postTitle}>{post.title}</h2>
-          <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
-        </Content>
+        <Generic className={styles.postContent} as={Link} to={`/${post.id}`}>
+          <Title size={2} as='h2' className={styles.postTitle}>{post.title}</Title>
+          {post.imageId && <Image.Container>
+            <Image
+              alt={`${post.title} attached image`}
+              src={`${Config.apiGateway.URL}/img/${post.imageId}`}
+            />
+          </Image.Container>}
+          <Content>
+            <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
+          </Content>
+        </Generic>
         <Level breakpoint="mobile">
           <Level.Item align="left" as={Link} to={`/${post.id}#comment`} className={styles.postCommentsButton}>
             <Level.Item>

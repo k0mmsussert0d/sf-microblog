@@ -1,10 +1,11 @@
 import {Post} from '../../models/API';
 import React, {ReactElement} from 'react';
 import styles from './PostOpened.module.scss';
-import {Content, Image, Level, Media} from 'rbx';
+import {Content, Generic, Image, Level, Media, Title} from 'rbx';
 import {Link} from 'react-router-dom';
 import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
 import CommentComp from './CommentComp';
+import Config from '../../config';
 
 const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactElement => {
   
@@ -31,10 +32,18 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
             </Level.Item>
           </Level.Item>
         </Level>
-        <Content className={styles.postContent}>
-          <h2 className={styles.postTitle}>{post.title}</h2>
-          <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
-        </Content>
+        <Generic as='div' className={styles.postContent}>
+          <Title size={2} as='h2' className={styles.postTitle}>{post.title}</Title>
+          {post.imageId && <Image.Container>
+            <Image
+              alt={`${post.title} attached image`}
+              src={`${Config.apiGateway.URL}/img/${post.imageId}`}
+            />
+          </Image.Container>}
+          <Content>
+            <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
+          </Content>
+        </Generic>
         {post.comments && post.comments.map((comment) => (
           <CommentComp comment={comment} key={comment.id} />
         ))}
