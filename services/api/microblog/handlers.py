@@ -83,7 +83,7 @@ def posts(event, _):
                     }
 
             elif method == 'PUT':
-                if content_type == 'application/json':
+                if 'application/json' in content_type:
                     # noinspection PyTypeChecker
                     body: NewPost = parse(event, NewPost, ApiGatewayProxyV2Envelope)
                     try:
@@ -103,7 +103,7 @@ def posts(event, _):
                             'statusCode': 404
                         }
 
-                elif content_type == 'multipart/form-data':
+                elif 'multipart/form-data' in content_type:
                     # noinspection PyTypeChecker
                     body: NewPostWithMedia = parse(event, NewPostWithMedia, ApiGatewayProxyV2Envelope)
                     return {
