@@ -33,7 +33,6 @@ def post_comment(comment: NewComment, user_claims: OpenIdClaims) -> Comment:
 
 
 def update_comment(comment_id: int, comment: NewComment, user_claims: OpenIdClaims) -> Comment:
-    assert comment_id == comment.postId
     _assert_user_rights_to_edit_comment(comment_id, user_claims)
 
     comments_table().update_item(
