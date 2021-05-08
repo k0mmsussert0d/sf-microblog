@@ -1,14 +1,17 @@
 import {Post} from '../../models/API';
 import React, {ReactElement} from 'react';
 import styles from './PostOpened.module.scss';
-import {Content, Generic, Image, Level, Media, Title} from 'rbx';
+import {Content, Generic, Icon, Image, Level, Media, Title, Dropdown, Button} from 'rbx';
 import {Link} from 'react-router-dom';
 import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
 import CommentComp from './CommentComp';
 import Config from '../../config';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faEdit, faEllipsisV, faTrash} from '@fortawesome/free-solid-svg-icons';
 
-const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactElement => {
-  
+
+const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit}: PostOpenedProps): ReactElement => {
+
   const postDate = new Date(post.date);
 
   return (
@@ -31,6 +34,49 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
               {getRelativeTimestamp(postDate) + ' ago'}
             </Level.Item>
           </Level.Item>
+          {editable &&
+          <Level.Item align='right'>
+            <Level.Item>
+              <Dropdown align='right'>
+                <Dropdown.Trigger>
+                  <Button inverted color='black'>
+                    <Icon size='small'>
+                      <FontAwesomeIcon icon={faEllipsisV}/>
+                    </Icon>
+                  </Button>
+                </Dropdown.Trigger>
+                <Dropdown.Menu>
+                  <Dropdown.Content>
+                    <Dropdown.Item onClick={toggleEdit}>
+                      <Level>
+                        <Level.Item align='left'>
+                          <Icon size='small'>
+                            <FontAwesomeIcon icon={faEdit}/>
+                          </Icon>
+                        </Level.Item>
+                        <Level.Item>
+                          Edit
+                        </Level.Item>
+                      </Level>
+                    </Dropdown.Item>
+                    <Dropdown.Divider/>
+                    <Dropdown.Item>
+                      <Level>
+                        <Level.Item align='left'>
+                          <Icon size='small'>
+                            <FontAwesomeIcon icon={faTrash}/>
+                          </Icon>
+                        </Level.Item>
+                        <Level.Item>
+                          Delete
+                        </Level.Item>
+                      </Level>
+                    </Dropdown.Item>
+                  </Dropdown.Content>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Level.Item>
+          </Level.Item>}
         </Level>
         <Generic as='div' className={styles.postContent}>
           <Title size={2} as='h2' className={styles.postTitle}>{post.title}</Title>
@@ -53,7 +99,9 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
 };
 
 export interface PostOpenedProps {
-  post: Post
+  post: Post,
+  editable: boolean
+  toggleEdit: () => void
 }
 
 export default PostOpened;

@@ -7,18 +7,21 @@ import {Container, Message as MessageBox} from 'rbx';
 import PostOpened from '../components/post/PostOpened';
 import {useAppContext} from '../utils/contextLib';
 import AddCommentForm from '../components/post/AddCommentForm';
+import EditPostModal from '../components/post/EditPostModal';
 
 const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteComponentProps<PostViewProps>): ReactElement => {
 
   const [postDetails, setPostDetails] = useState<Post | undefined>(undefined);
+  const [displayEditModal, setDisplayEditModal] = useState(false);
   const [errorMsg, setErrorMsg] = useState<Message | undefined>(undefined);
-  const {isAuthenticated} = useAppContext();
+
+  const {isAuthenticated, authenticatedUserDetails} = useAppContext();
 
   useEffect(() => {
     reloadPost();
   }, []);
 
-  const reloadPost = async (): Promise<void> => {
+  const reloadPost = (): void => {
     API.Post.get(parseInt(match.params.id))
       .then(response => {
         setPostDetails(response);
@@ -49,7 +52,23 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
   const renderPost = (): ReactNode => {
     return (
       <>
-        {postDetails && <PostOpened post={postDetails}/>}
+        {postDetails && <PostOpened
+          post={postDetails}
+          editable={authenticatedUserDetails?.username === postDetails?.author.username}
+          toggleEdit={toggleDisplayEditModal}
+        />}
+      </>
+    );
+  };
+
+  const renderEditPostModal = (): ReactNode => {
+    return (
+      <>
+        {postDetails && <EditPostModal
+          post={postDetails}
+          toggle={toggleDisplayEditModal}
+          reloadPost={reloadPost}
+        />}
       </>
     );
   };
@@ -58,10 +77,15 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
     reloadPost();
   };
 
+  const toggleDisplayEditModal = (): void => {
+    setDisplayEditModal(!displayEditModal);
+  };
+
   return (
     <>
       {errorMsg && renderErrorMessage()}
       {postDetails && renderPost()}
+      {displayEditModal && renderEditPostModal()}
       {postDetails && isAuthenticated &&
         <AddCommentForm 
           postId={postDetails.id}

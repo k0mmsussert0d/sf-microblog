@@ -44,10 +44,10 @@ const API = {
         }
       );
     },
-    update: (newPost: NewPost): Promise<Post> => {
+    update: (id: number, newPost: NewPost): Promise<Post> => {
       return AwsApi.put(
         API_NAME,
-        '/post',
+        `/post/${id}`,
         {
           body: newPost
         }

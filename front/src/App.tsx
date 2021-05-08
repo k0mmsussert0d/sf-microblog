@@ -11,32 +11,44 @@ import SignUp from './views/SignUp';
 import Login from './views/Login';
 import PostView from './views/PostView';
 import AddPost from './views/AddPost';
+import { UserSummary } from './models/API';
 
 
 const App: React.FC = (): ReactElement => {
 
   const [isAuthenticated, userHasAuthenticated] = useState<boolean>(false);
+  const [authenticatedUser, setAuthenticatedUser] = useState<UserSummary | undefined>(undefined);
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
 
   useEffect(() => {
     const onLoad = async() => {
       setIsAuthenticating(true);
       try {
-        await Auth.currentSession();
+        const user = await Auth.currentUserInfo();
         userHasAuthenticated(true);
+        setAuthenticatedUser({
+          username: user.username,
+          avatar: user.attributes.avatar ?? undefined,
+          joined: new Date()
+        });
       } catch (e) {
         if (e !== 'No current user') {
           console.error(e);
         }
+      } finally {
+        setIsAuthenticating(false);
       }
-      setIsAuthenticating(false);
     };
 
     onLoad();
   }, []);
 
   return (
-    <AppContext.Provider value={{isAuthenticated: isAuthenticated, userHasAuthenticated: userHasAuthenticated}}>
+    <AppContext.Provider value={{
+      isAuthenticated: isAuthenticated,
+      authenticatedUserDetails: authenticatedUser,
+      userHasAuthenticated: userHasAuthenticated
+    }}>
       <Router>
         <Header />
         <Generic as='div' className='main-wrapper'>
