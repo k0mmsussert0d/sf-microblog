@@ -6,7 +6,7 @@ import API from '../utils/API';
 import {Container, Message as MessageBox} from 'rbx';
 import PostOpened from '../components/post/PostOpened';
 import {useAppContext} from '../utils/contextLib';
-import AddCommentForm from '../components/post/AddCommentForm';
+import AddCommentForm from '../components/comment/AddCommentForm';
 import EditPostModal from '../components/post/EditPostModal';
 import useToggle from '../utils/Toggle';
 import DeletePostModal from '../components/post/DeletePostModal';
