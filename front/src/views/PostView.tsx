@@ -8,11 +8,12 @@ import PostOpened from '../components/post/PostOpened';
 import {useAppContext} from '../utils/contextLib';
 import AddCommentForm from '../components/post/AddCommentForm';
 import EditPostModal from '../components/post/EditPostModal';
+import useToggle from '../utils/Toggle';
 
 const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteComponentProps<PostViewProps>): ReactElement => {
 
   const [postDetails, setPostDetails] = useState<Post | undefined>(undefined);
-  const [displayEditModal, setDisplayEditModal] = useState(false);
+  const [displayEditModal, toggleEditModal] = useToggle();
   const [errorMsg, setErrorMsg] = useState<Message | undefined>(undefined);
 
   const {isAuthenticated, authenticatedUserDetails} = useAppContext();
@@ -55,7 +56,7 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
         {postDetails && <PostOpened
           post={postDetails}
           editable={authenticatedUserDetails?.username === postDetails?.author.username}
-          toggleEdit={toggleDisplayEditModal}
+          toggleEdit={toggleEditModal}
         />}
       </>
     );
@@ -66,7 +67,7 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
       <>
         {postDetails && <EditPostModal
           post={postDetails}
-          toggle={toggleDisplayEditModal}
+          toggle={toggleEditModal}
           reloadPost={reloadPost}
         />}
       </>
@@ -75,10 +76,6 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
 
   const commentSubmittedCbk = (): void => {
     reloadPost();
-  };
-
-  const toggleDisplayEditModal = (): void => {
-    setDisplayEditModal(!displayEditModal);
   };
 
   return (
