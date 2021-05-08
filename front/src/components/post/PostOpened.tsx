@@ -10,7 +10,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEdit, faEllipsisV, faTrash} from '@fortawesome/free-solid-svg-icons';
 
 
-const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit}: PostOpenedProps): ReactElement => {
+const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit, toggleDelete}: PostOpenedProps): ReactElement => {
 
   const postDate = new Date(post.date);
 
@@ -60,7 +60,7 @@ const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit}: Pos
                       </Level>
                     </Dropdown.Item>
                     <Dropdown.Divider/>
-                    <Dropdown.Item>
+                    <Dropdown.Item onClick={toggleDelete}>
                       <Level>
                         <Level.Item align='left'>
                           <Icon size='small'>
@@ -102,6 +102,7 @@ export interface PostOpenedProps {
   post: Post,
   editable: boolean
   toggleEdit: () => void
+  toggleDelete: () => void
 }
 
 export default PostOpened;

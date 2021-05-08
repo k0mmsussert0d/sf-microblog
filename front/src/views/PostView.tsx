@@ -1,5 +1,5 @@
 import React, {ReactElement, ReactNode, useEffect, useState} from 'react';
-import {RouteComponentProps} from 'react-router-dom';
+import {Redirect, RouteComponentProps} from 'react-router-dom';
 import {Post} from '../models/API';
 import { Message } from '../models/UI';
 import API from '../utils/API';
@@ -9,11 +9,14 @@ import {useAppContext} from '../utils/contextLib';
 import AddCommentForm from '../components/post/AddCommentForm';
 import EditPostModal from '../components/post/EditPostModal';
 import useToggle from '../utils/Toggle';
+import DeletePostModal from '../components/post/DeletePostModal';
 
 const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteComponentProps<PostViewProps>): ReactElement => {
 
   const [postDetails, setPostDetails] = useState<Post | undefined>(undefined);
   const [displayEditModal, toggleEditModal] = useToggle();
+  const [displayDeleteModal, toggleDeleteModal] = useToggle();
+  const [redirectTo, setRedirectTo] = useState<string | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState<Message | undefined>(undefined);
 
   const {isAuthenticated, authenticatedUserDetails} = useAppContext();
@@ -57,6 +60,7 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
           post={postDetails}
           editable={authenticatedUserDetails?.username === postDetails?.author.username}
           toggleEdit={toggleEditModal}
+          toggleDelete={toggleDeleteModal}
         />}
       </>
     );
@@ -73,6 +77,18 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
       </>
     );
   };
+  
+  const renderDeletePostModal = (): ReactNode => {
+    return (
+      <>
+        {postDetails && <DeletePostModal
+          post={postDetails}
+          toggle={toggleDeleteModal}
+          redirect={() => setRedirectTo('/')}
+        />}
+      </>
+    );
+  };
 
   const commentSubmittedCbk = (): void => {
     reloadPost();
@@ -80,9 +96,11 @@ const PostView: React.FC<RouteComponentProps<PostViewProps>> = ({match}: RouteCo
 
   return (
     <>
+      {redirectTo && <Redirect to={redirectTo} />}
       {errorMsg && renderErrorMessage()}
       {postDetails && renderPost()}
       {displayEditModal && renderEditPostModal()}
+      {displayDeleteModal && renderDeletePostModal()}
       {postDetails && isAuthenticated &&
         <AddCommentForm 
           postId={postDetails.id}
