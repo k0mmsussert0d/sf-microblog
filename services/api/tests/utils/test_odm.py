@@ -73,7 +73,8 @@ def test_comment_from_commentdoc_maps_correctly(cognito_user, dynamodb_sample_da
         id=id,
         date=int(dt.timestamp()),
         content=content,
-        authorSub=author_uuid
+        authorSub=author_uuid,
+        postId=1
     )
 
     comment = CommentODM.get_object(comment_doc)
@@ -103,3 +104,4 @@ def test_commentdoc_from_comment_maps_correctly(cognito_user):
     assert comment_doc.date == int(dt.timestamp())
     assert comment_doc.authorSub == author_uuid
     assert comment_doc.content == content
+    assert comment_doc.postId is None
