@@ -18,7 +18,7 @@ def get_basic_user_details(user_sub: str) -> Optional[BasicUserDetails]:
         return None
 
     return BasicUserDetails(
-        username=res['Users'][0]['Username'],
+        username=extract_attribute(res['Users'][0]['Attributes'], 'nickname'),
         avatar=extract_attribute(res['Users'][0]['Attributes'], 'avatar')
     )
 

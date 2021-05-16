@@ -82,7 +82,7 @@ def test_comment_from_commentdoc_maps_correctly(cognito_user, dynamodb_sample_da
     assert comment.id == id
     assert comment.date == dt
     assert comment.content == content
-    assert comment.author == BasicUserDetails(username='username', avatar=None)
+    assert comment.author == BasicUserDetails(username='nickname0', avatar=None)
 
 
 def test_commentdoc_from_comment_maps_correctly(cognito_user):

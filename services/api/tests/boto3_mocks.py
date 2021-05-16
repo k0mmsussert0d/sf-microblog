@@ -203,6 +203,10 @@ def cognito_user(cognito_idp, cognito_user_pool):
             {
                 'Name': 'sub',
                 'Value': 'b7d5ab35-7c77-456d-83e8-7728de57ed54'
+            },
+            {
+                'Name': 'nickname',
+                'Value': 'nickname0'
             }
         ]
     )
