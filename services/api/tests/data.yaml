@@ -1,0 +1,16 @@
+posts:
+  - id: 1
+    date: 1618527983
+    textContent: Text content of a post
+    title: Title of a post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+comments:
+  - id: 2
+    date: 1618527988
+    postId: 1
+    content: Content of a post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+users:
+  - username: username
+    sub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    nickname: nickname0

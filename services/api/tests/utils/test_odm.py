@@ -10,10 +10,10 @@ from microblog.models.db import PostDoc, CommentDoc
 from microblog.utils.odm import PostODM, CommentODM
 
 
-def test_post_from_postdoc_maps_correctly(cognito_user, dynamodb_sample_data):
+def test_post_from_postdoc_maps_correctly(cognito_user, dynamodb_sample_data, test_data):
     id = 1
     dt = datetime(2021, 1, 1, 12, 0, 0)
-    author_uuid = 'b7d5ab35-7c77-456d-83e8-7728de57ed54'
+    author_uuid = test_data['users'][0]['sub']
     title = 'foo'
     text = 'bar'
     image_id = 'f00bar'
@@ -35,17 +35,17 @@ def test_post_from_postdoc_maps_correctly(cognito_user, dynamodb_sample_data):
     assert post.date == dt
 
 
-def test_postdoc_from_post_maps_correctly(cognito_user):
+def test_postdoc_from_post_maps_correctly(cognito_user, test_data):
     id = 1
     dt = datetime(2021, 1, 1, 12, 0, 0)
-    author_uuid = 'b7d5ab35-7c77-456d-83e8-7728de57ed54'
+    author_uuid = test_data['users'][0]['sub']
     title = 'foo'
     text = 'bar'
     image_id = 'f00bar'
 
     post = Post(
         id=id,
-        author=BasicUserDetails(username='username', avatar=None),
+        author=BasicUserDetails(username=test_data['users'][0]['username'], avatar=None),
         title=title,
         textContent=text,
         comments=[],
@@ -63,11 +63,11 @@ def test_postdoc_from_post_maps_correctly(cognito_user):
     assert post_doc.imageId == image_id
 
 
-def test_comment_from_commentdoc_maps_correctly(cognito_user, dynamodb_sample_data):
+def test_comment_from_commentdoc_maps_correctly(cognito_user, dynamodb_sample_data, test_data):
     id = 2
     dt = datetime(2021, 1, 1, 12, 0, 0)
     content = 'foo'
-    author_uuid = 'b7d5ab35-7c77-456d-83e8-7728de57ed54'
+    author_uuid = test_data['users'][0]['sub']
 
     comment_doc = CommentDoc(
         id=id,
@@ -82,19 +82,19 @@ def test_comment_from_commentdoc_maps_correctly(cognito_user, dynamodb_sample_da
     assert comment.id == id
     assert comment.date == dt
     assert comment.content == content
-    assert comment.author == BasicUserDetails(username='nickname0', avatar=None)
+    assert comment.author == BasicUserDetails(username=test_data['users'][0]['nickname'], avatar=None)
 
 
-def test_commentdoc_from_comment_maps_correctly(cognito_user):
+def test_commentdoc_from_comment_maps_correctly(cognito_user, test_data):
     id = 2
     dt = datetime(2021, 1, 1, 12, 0, 0)
-    author_uuid = 'b7d5ab35-7c77-456d-83e8-7728de57ed54'
+    author_uuid = test_data['users'][0]['sub']
     content = 'comment content'
 
     comment = Comment(
         id=id,
         date=dt,
-        author=BasicUserDetails(username='username', avatar=None),
+        author=BasicUserDetails(username=test_data['users'][0]['username'], avatar=None),
         content=content
     )
 

@@ -8,15 +8,17 @@ def test_get_comments_for_post_if_no_comments_return_empty_list(dynamodb_comment
     assert get_comments_for_post(1) == []
 
 
-def test_get_comments_for_post_if_comments_return_list(dynamodb_sample_data):
+def test_get_comments_for_post_if_comments_return_list(dynamodb_sample_data, test_data):
     from microblog.data.comment import get_comments_for_post
 
-    assert get_comments_for_post(1) == [
+    comment = test_data['comments'][0]
+
+    assert get_comments_for_post(comment['postId']) == [
         CommentDoc(
-            id=2,
-            date=1618527988,
-            postId=1,
-            content='Content of a post',
-            authorSub='b7d5ab35-7c77-456d-83e8-7728de57ed54'
+            id=comment['id'],
+            date=comment['date'],
+            postId=comment['postId'],
+            content=comment['content'],
+            authorSub=comment['authorSub']
         )
     ]
