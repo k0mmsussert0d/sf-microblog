@@ -24,7 +24,7 @@ const PostOpened: React.FC<PostOpenedProps> = ({post}: PostOpenedProps): ReactEl
       <Media.Item align="content">
         <Level as='nav' className={styles.postHeader}>
           <Level.Item align='left'>
-            <Level.Item className={styles.postAuthor} as={Link} to={`/user/${post.author.username}`}>
+            <Level.Item className={styles.postAuthor} as={Link} to={`/profile/${post.author.username}`}>
               {post.author.username}
             </Level.Item>
             <Level.Item className={styles.postDate} tooltip={postDate.toLocaleString()}>
