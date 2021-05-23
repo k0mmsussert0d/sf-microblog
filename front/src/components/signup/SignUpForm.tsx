@@ -30,7 +30,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({setNewUser}: SignUpFormProps): R
       username: form.email,
       password: form.password,
       attributes: {
-        nickname: form.username
+        preferred_username: form.username
       }
     };
 

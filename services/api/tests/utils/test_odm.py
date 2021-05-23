@@ -3,8 +3,6 @@ Tests suite validating mapping between API and DB models functions correctly
 """
 from datetime import datetime
 
-from boto3_mocks import aws_credentials, cognito_idp, cognito_user, cognito_user_pool, \
-    dynamodb_sample_data, dynamodb_comments_table, dynamodb_posts_table, dynamodb
 from microblog.models.api import BasicUserDetails, Post, Comment
 from microblog.models.db import PostDoc, CommentDoc
 from microblog.utils.odm import PostODM, CommentODM
@@ -45,7 +43,7 @@ def test_postdoc_from_post_maps_correctly(cognito_user, test_data):
 
     post = Post(
         id=id,
-        author=BasicUserDetails(username=test_data['users'][0]['username'], avatar=None),
+        author=BasicUserDetails(username=test_data['users'][0]['preferred_username'], avatar=None),
         title=title,
         textContent=text,
         comments=[],
@@ -82,7 +80,7 @@ def test_comment_from_commentdoc_maps_correctly(cognito_user, dynamodb_sample_da
     assert comment.id == id
     assert comment.date == dt
     assert comment.content == content
-    assert comment.author == BasicUserDetails(username=test_data['users'][0]['nickname'], avatar=None)
+    assert comment.author == BasicUserDetails(username=test_data['users'][0]['preferred_username'], avatar=None)
 
 
 def test_commentdoc_from_comment_maps_correctly(cognito_user, test_data):
@@ -94,7 +92,7 @@ def test_commentdoc_from_comment_maps_correctly(cognito_user, test_data):
     comment = Comment(
         id=id,
         date=dt,
-        author=BasicUserDetails(username=test_data['users'][0]['username'], avatar=None),
+        author=BasicUserDetails(username=test_data['users'][0]['preferred_username'], avatar=None),
         content=content
     )
 

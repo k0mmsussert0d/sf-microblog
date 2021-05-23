@@ -80,7 +80,7 @@ resources:
           - Name: email
             Required: true
             Mutable: true
-          - Name: nickname
+          - Name: preferred_username
             Required: true
             Mutable: true
 
@@ -162,12 +162,22 @@ resources:
             AttributeType: N
           - AttributeName: postId
             AttributeType: N
+          - AttributeName: authorSub
+            AttributeType: S
         GlobalSecondaryIndexes:
           - IndexName: gsiPostComments
             KeySchema:
               - AttributeName: postId
                 KeyType: HASH
               - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: gsiUserComments
+            KeySchema:
+              - AttributeName: authorSub
+                KeyType: HASH
+              - AttributeName: date
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

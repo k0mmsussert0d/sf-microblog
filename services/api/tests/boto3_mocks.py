@@ -106,6 +106,10 @@ def dynamodb_comments_table(dynamodb):
             {
                 'AttributeName': 'postId',
                 'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'authorSub',
+                'AttributeType': 'S'
             }
         ],
         GlobalSecondaryIndexes=[
@@ -114,6 +118,22 @@ def dynamodb_comments_table(dynamodb):
                 'KeySchema': [
                     {
                         'AttributeName': 'postId',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'id',
+                        'KeyType': 'RANGE'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'ALL'
+                }
+            },
+            {
+                'IndexName': 'gsiUserComments',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'authorSub',
                         'KeyType': 'HASH'
                     },
                     {
@@ -139,9 +159,11 @@ def dynamodb_sample_data(test_data, dynamodb, dynamodb_posts_table, dynamodb_com
         Item={
             "id": {"N": str(sample_post['id'])},
             "date": {"N": str(sample_post['date'])},
+            "imageId": {"NULL": True},
             "textContent": {"S": sample_post['textContent']},
             "title": {"S": sample_post['title']},
-            "authorSub": {"S": sample_post['authorSub']}
+            "authorSub": {"S": sample_post['authorSub']},
+            "active": {"N": "1"}
         }
     )
 
@@ -153,7 +175,8 @@ def dynamodb_sample_data(test_data, dynamodb, dynamodb_posts_table, dynamodb_com
             "date": {"N": str(sample_comment['date'])},
             "postId": {"N": str(sample_comment['postId'])},
             "content": {"S": sample_comment['content']},
-            "authorSub": {"S": sample_comment['authorSub']}
+            "authorSub": {"S": sample_comment['authorSub']},
+            "active": {"N": "1"}
         }
     )
     yield
@@ -201,8 +224,25 @@ def cognito_user(test_data, cognito_idp, cognito_user_pool):
         Username=sample_user['username'],
         UserAttributes=[{'Name': name, 'Value': value} for name, value in sample_user.items()]
     )
-    yield
+    yield cognito_idp.admin_get_user(
+        UserPoolId=user_pool_id,
+        Username=sample_user['username']
+    )
     cognito_idp.admin_delete_user(
         UserPoolId=user_pool_id,
         Username=sample_user['username'],
+    )
+
+
+@pytest.fixture(scope='function')
+def cognito_disabled_user(cognito_idp, cognito_user_pool, cognito_user, test_data):
+    user = test_data['users'][0]
+    user_pool_id = cognito_user_pool['UserPool']['Id']
+    cognito_idp.admin_disable_user(
+        UserPoolId=cognito_user_pool['UserPool']['Id'],
+        Username=user['username']
+    )
+    yield cognito_idp.admin_get_user(
+        UserPoolId=user_pool_id,
+        Username=user['username']
     )

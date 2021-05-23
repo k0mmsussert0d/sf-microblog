@@ -1,8 +1,6 @@
-import os
-from unittest import mock
-
-import pytest
 import yaml
+
+from boto3_mocks import *
 
 
 @pytest.fixture(autouse=True)
