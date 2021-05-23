@@ -56,7 +56,7 @@ def test_get_user_details__return_details__if_user_exists(cognito_user, dynamodb
     post = test_data['posts'][0]
     comment = test_data['comments'][0]
 
-    res = get_user_details(user['sub'])
+    res = get_user_details(user['preferred_username'])
 
     assert res.summary.username == user['preferred_username']
     if res.summary.avatar:

@@ -55,7 +55,7 @@ def get_user_sub(username: str) -> Optional[str]:
     res = client.list_users(
         UserPoolId=os.environ['COGNITO_USER_POOL_ID'],
         AttributesToGet=['sub'],
-        Filter=f'preferred_username={username}'
+        Filter=f'preferred_username="{username}"'
     )
 
     if len(res['Users']) == 0:

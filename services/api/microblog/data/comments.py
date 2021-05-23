@@ -36,7 +36,7 @@ def put_comment_doc(comment_doc: CommentDoc) -> None:
 def get_user_comments(user_sub: str) -> List[CommentDoc]:
     res = comments_table().query(
         IndexName='gsiUserComments',
-        KeyConditionExpression=Key('userSub').eq(user_sub),
+        KeyConditionExpression=Key('authorSub').eq(user_sub),
         FilterExpression=Key('active').eq(1),
         ScanIndexForward=False
     )

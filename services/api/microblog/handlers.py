@@ -20,6 +20,7 @@ logger = Logger()
 
 @logger.inject_lambda_context()
 def posts(event, _):
+    logger.debug(event)
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
     logger.debug(event)
     method = event.request_context.http.method
@@ -143,6 +144,7 @@ def posts(event, _):
 
 @logger.inject_lambda_context()
 def comment(event, _):
+    logger.debug(event)
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
     method = event.request_context.http.method
     path_params = event.path_parameters
@@ -200,16 +202,20 @@ def comment(event, _):
 
 @logger.inject_lambda_context()
 def user(event, _):
+    logger.debug(event)
     event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
     method = event.request_context.http.method
     path_params = event.path_parameters
-    user_claims = OpenIdClaims.parse_obj(event.request_context.authorizer.jwt_claim)
+    if authorizer := event.request_context.authorizer:
+        user_claims = OpenIdClaims.parse_obj(authorizer.jwt_claim)
+    else:
+        user_claims = None
 
     if not path_params:
         if method == 'GET':
             return {
                 'statusCode': 200,
-                'body': get_user_self_details(user_claims)
+                'body': get_user_self_details(user_claims).json()
             }
 
         elif method == 'PUT':
@@ -217,14 +223,14 @@ def user(event, _):
             body: NewUserDetails = parse(event, NewUserDetails, ApiGatewayProxyV2Envelope)
             return {
                 'statusCode': 200,
-                'body': update_user_self_details(body, user_claims)
+                'body': update_user_self_details(body, user_claims).json()
             }
 
     elif username := path_params.get('username'):
         if method == 'GET':
             return {
                 'statusCode': 200,
-                'body': get_user_details(username)
+                'body': get_user_details(username).json()
             }
 
     return {

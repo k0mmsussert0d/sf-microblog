@@ -177,7 +177,7 @@ resources:
             KeySchema:
               - AttributeName: authorSub
                 KeyType: HASH
-              - AttributeName: date
+              - AttributeName: id
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
