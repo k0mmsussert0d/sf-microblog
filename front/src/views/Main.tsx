@@ -1,6 +1,6 @@
 import React, {ReactElement, useEffect, useRef, useState} from 'react';
 import API from '../utils/API';
-import {Post} from '../models/API';
+import {BasicPost, Post} from '../models/API';
 import {Generic, PageLoader} from 'rbx';
 import PostComp from '../components/post/PostPreview';
 
@@ -41,7 +41,19 @@ const Main: React.FC = (): ReactElement => {
   const renderPostsList = () => {
     return (
       <>
-        {posts.map((post: Post) => PostComp({post: post}))}
+        {posts.map((post: Post) => {
+          const basicPost: BasicPost = {
+            id: post.id,
+            author: post.author,
+            date: post.date,
+            title: post.title,
+            textContent: post.textContent,
+            imageUrl: post.imageId,
+            commentsCount: post.comments?.length ?? 0
+          };
+
+          return <PostComp key={post.id} post={basicPost} />;
+        })}
       </>
     );
   };

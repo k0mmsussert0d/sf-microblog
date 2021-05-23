@@ -3,7 +3,7 @@ import styles from './PostPreview.module.scss';
 import {Content, Generic, Icon, Image, Level, Media, Title} from 'rbx';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faComment} from '@fortawesome/free-solid-svg-icons';
-import {Post} from '../../models/API';
+import {BasicPost} from '../../models/API';
 import {Link} from 'react-router-dom';
 import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
 import Config from '../../config';
@@ -35,10 +35,10 @@ const PostComp: React.FC<PostCompProps> = ({post}: PostCompProps): ReactElement 
         </Level>
         <Generic className={styles.postContent} as={Link} to={`/${post.id}`}>
           <Title size={2} as='h2' className={styles.postTitle}>{post.title}</Title>
-          {post.imageId && <Image.Container>
+          {post.imageUrl && <Image.Container>
             <Image
               alt={`${post.title} attached image`}
-              src={`${Config.apiGateway.URL}/img/${post.imageId}`}
+              src={`${Config.apiGateway.URL}/img/${post.imageUrl}`}
             />
           </Image.Container>}
           <Content>
@@ -52,7 +52,7 @@ const PostComp: React.FC<PostCompProps> = ({post}: PostCompProps): ReactElement 
                 <FontAwesomeIcon icon={faComment}/>
               </Icon>
               <Generic as='div' className={styles.postCommentsCount}>
-                {post.comments?.length}
+                {post.commentsCount}
               </Generic>
             </Level.Item>
           </Level.Item>
@@ -63,7 +63,7 @@ const PostComp: React.FC<PostCompProps> = ({post}: PostCompProps): ReactElement 
 };
 
 export interface PostCompProps {
-  post: Post
+  post: BasicPost
 }
 
 export default PostComp;

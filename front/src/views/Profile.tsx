@@ -7,6 +7,7 @@ import API from '../utils/API';
 import {Box, Content} from 'rbx';
 import UserProfileCard from '../components/profile/UserProfileCard';
 import ErrorMessage from '../components/shared/ErrorMessage';
+import UserActivity from '../components/profile/UserActivity';
 
 const Profile: React.FC<RouteComponentProps<ProfileProps>> = ({match}: RouteComponentProps<ProfileProps>): ReactElement => {
 
@@ -66,7 +67,12 @@ const Profile: React.FC<RouteComponentProps<ProfileProps>> = ({match}: RouteComp
       return (
         <>
           {errorMsg && <ErrorMessage msg={errorMsg} />}
-          {userProfile && <UserProfileCard user={userProfile.summary} editable={false} />}
+          {userProfile &&
+          <>
+            <UserProfileCard user={userProfile.summary} editable={false} />
+            <UserActivity posts={userProfile.posts} comments={userProfile.comments} />
+          </>
+          }
         </>
       );
     }

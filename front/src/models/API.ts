@@ -233,13 +233,13 @@ export interface UserDetails {
    * @type {Array<BasicPost>}
    * @memberof UserDetails
    */
-  posts?: Array<BasicPost>;
+  posts: Array<BasicPost>;
   /**
    * List of comments user has added
    * @type {Array<Comment>}
    * @memberof UserDetails
    */
-  comments?: Array<Comment>;
+  comments: Array<Comment>;
 }
 /**
  * All details of the user
