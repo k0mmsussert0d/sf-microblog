@@ -1,7 +1,8 @@
 import React, {ReactElement} from 'react';
 import {UserSummary} from '../../models/API';
-import {Box, Level, Image, Content} from 'rbx';
+import {Box, Level, Content} from 'rbx';
 import {getRelativeTimestamp} from '../../utils/viewLib';
+import Avatar from './Avatar';
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({user}: UserProfileCardProps): ReactElement => {
 
@@ -11,9 +12,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({user}: UserProfileCard
     <Box>
       <Level>
         <Level.Item align='left'>
-          <Image.Container>
-            <Image src='https://bulma.io/images/placeholders/128x128.png' />
-          </Image.Container>
+          <Avatar editable={true} />
         </Level.Item>
         <Level.Item align='right'>
           <Content>

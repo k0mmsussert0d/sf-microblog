@@ -5,7 +5,7 @@ import {Auth} from 'aws-amplify';
 import { AppContext } from './utils/contextLib';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import Header from './components/header/Header';
-import {Generic} from 'rbx';
+import {Generic, Modal} from 'rbx';
 import Main from './views/Main';
 import SignUp from './views/SignUp';
 import Login from './views/Login';
@@ -14,6 +14,7 @@ import AddPost from './views/AddPost';
 import { UserSummary } from './models/API';
 import Profile from './views/Profile';
 import AuthenticatedRoute from './utils/AuthenticatedRoute';
+import {ModalContext, ModalElement} from './utils/ModalContext';
 
 
 const App: React.FC = (): ReactElement => {
@@ -21,6 +22,8 @@ const App: React.FC = (): ReactElement => {
   const [isAuthenticated, userHasAuthenticated] = useState<boolean>(false);
   const [authenticatedUser, setAuthenticatedUser] = useState<UserSummary | undefined>(undefined);
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
+
+  const [modal, setModal] = useState<ModalElement | undefined>(undefined);
 
   useEffect(() => {
     const onLoad = async() => {
@@ -55,34 +58,45 @@ const App: React.FC = (): ReactElement => {
       userHasAuthenticated: userHasAuthenticated,
       authenticatedUserDetails: authenticatedUser
     }}>
-      <Router>
-        <Header />
-        <Generic as='div' className='main-wrapper'>
-          <Switch>
-            <Route path='/login'>
-              <Login />
-            </Route>
-            <Route path='/signup'>
-              <SignUp />
-            </Route>
-            <AuthenticatedRoute
-              path='/add'
-              isAuthenticated={isAuthenticated}
-              component={AddPost}
-            />
-            <Route path='/profile/:username' component={Profile} />
-            <AuthenticatedRoute
-              path='/profile'
-              isAuthenticated={isAuthenticated}
-              component={Profile}
-            />
-            <Route path='/:id' component={PostView} />
-            <Route path='/'>
-              <Main />
-            </Route>
-          </Switch>
-        </Generic>
-      </Router>
+      <ModalContext.Provider value={{
+        isShowing: modal !== undefined,
+        setAsModal: setModal,
+        clear: () => setModal(undefined)
+      }}>
+        <Router>
+          <Header />
+          <Generic as='div' className='main-wrapper'>
+            <Modal
+              active={modal !== undefined}
+            >
+              {modal}
+            </Modal>
+            <Switch>
+              <Route path='/login'>
+                <Login />
+              </Route>
+              <Route path='/signup'>
+                <SignUp />
+              </Route>
+              <AuthenticatedRoute
+                path='/add'
+                isAuthenticated={isAuthenticated}
+                component={AddPost}
+              />
+              <Route path='/profile/:username' component={Profile} />
+              <AuthenticatedRoute
+                path='/profile'
+                isAuthenticated={isAuthenticated}
+                component={Profile}
+              />
+              <Route path='/:id' component={PostView} />
+              <Route path='/'>
+                <Main />
+              </Route>
+            </Switch>
+          </Generic>
+        </Router>
+      </ModalContext.Provider>
     </AppContext.Provider>
   );
 };
