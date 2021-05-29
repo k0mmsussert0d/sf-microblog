@@ -52,3 +52,10 @@ class ApiGatewayProxyV2Envelope(BaseEnvelope):
             if field_name in part:
                 return part.split('name=', 1)[1].strip('"')
         return None
+
+
+def get_binary_body_from_event(event: APIGatewayProxyEventV2) -> bytes:
+    if event.is_base64_encoded:
+        return base64.b64decode(event.body)
+    else:
+        return event.body.encode('utf-8')

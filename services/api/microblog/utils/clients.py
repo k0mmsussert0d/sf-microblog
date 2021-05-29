@@ -33,3 +33,7 @@ def comments_table() -> Table:
 
 def uploads_bucket() -> Bucket:
     return s3_resource().Bucket(os.environ['UPLOADS_BUCKET'])
+
+
+def avatars_bucket() -> Bucket:
+    return s3_resource().Bucket(os.environ['AVATARS_BUCKET'])
