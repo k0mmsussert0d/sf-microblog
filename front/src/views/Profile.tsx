@@ -4,10 +4,11 @@ import {RouteComponentProps} from 'react-router-dom';
 import {UserDetails} from '../models/API';
 import {Message} from '../models/UI';
 import API from '../utils/API';
-import {Box, Content} from 'rbx';
+import {Box} from 'rbx';
 import UserProfileCard from '../components/profile/UserProfileCard';
 import ErrorMessage from '../components/shared/ErrorMessage';
 import UserActivity from '../components/profile/UserActivity';
+import Spinner from '../components/shared/Spinner';
 
 const Profile: React.FC<RouteComponentProps<ProfileProps>> = ({match}: RouteComponentProps<ProfileProps>): ReactElement => {
 
@@ -52,17 +53,9 @@ const Profile: React.FC<RouteComponentProps<ProfileProps>> = ({match}: RouteComp
     }
   }, [isAuthenticated, authenticatedUserDetails]);
 
-  const renderSpinner = (): ReactNode => {
-    return (
-      <Content>
-        <p>Loading</p>
-      </Content>
-    );
-  };
-
   const render = (): ReactNode => {
     if (isLoading) {
-      return renderSpinner();
+      return <Spinner />;
     } else {
       return (
         <>

@@ -1,4 +1,6 @@
 .userAvatar {
+  position: relative;
+
   @media screen and (max-width: 768px) {
     margin: 0 auto;
   }
@@ -26,6 +28,28 @@
 
     &:hover {
       opacity: 100%;
+    }
+  }
+
+  .spinner {
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    color: white;
+
+    .container {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    &.active {
+      display: block;
+      background: rgba(0, 0, 0, .6);
     }
   }
 }

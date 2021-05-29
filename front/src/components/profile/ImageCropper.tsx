@@ -8,9 +8,10 @@ import styles from './ImageCropper.module.scss';
 export interface ImageCropperProps {
   hide: () => void,
   src: string,
+  onReady: BlobCallback,
 }
 
-const ImageCropper: React.FC<ImageCropperProps> = ({hide, src}: ImageCropperProps): ReactElement => {
+const ImageCropper: React.FC<ImageCropperProps> = ({hide, src, onReady}: ImageCropperProps): ReactElement => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -63,16 +64,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({hide, src}: ImageCropperProp
       return;
     }
 
-    canvasRef.current.toBlob(blob => {
-      const previewUrl = window.URL.createObjectURL(blob);
-
-      const anchor = document.createElement('a');
-      anchor.download = 'cropPreview.png';
-      anchor.href = URL.createObjectURL(blob);
-      anchor.click();
-
-      window.URL.revokeObjectURL(previewUrl);
-    }, 'image/png', 1);
+    canvasRef.current.toBlob(onReady);
   };
 
   return (

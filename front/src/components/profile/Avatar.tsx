@@ -5,20 +5,41 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faEdit} from '@fortawesome/free-solid-svg-icons';
 import ImageCropper from './ImageCropper';
 import {useModalContext} from '../../utils/ModalContext';
+import API from '../../utils/API';
+import Spinner from '../shared/Spinner';
 
 export interface AvatarProps {
+  username: string,
   editable: boolean,
   defaultImage?: string,
 }
 
-const Avatar: React.FC<AvatarProps> = ({editable = false, defaultImage}: AvatarProps): ReactElement => {
+const Avatar: React.FC<AvatarProps> = ({username, editable = false, defaultImage}: AvatarProps): ReactElement => {
 
   const [loadedImage, setLoadedImage] = useState<string | undefined>(undefined);
+  const [avatarSrc, setAvatarSrc] = useState<string>(defaultImage ?? 'https://bulma.io/images/placeholders/256x256.png');
+  const [changingAvatar, setChangingAvatar] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const {setAsModal, clear} = useModalContext();
+
+  const uploadAvatar: BlobCallback = (blob => {
+    if (blob) {
+      setChangingAvatar(true);
+      API.Avatar.set(username, blob)
+        .then(() => {
+          console.log('success');
+        })
+        .catch(() => {
+          console.log('failed');
+        })
+        .finally(() => {
+          setChangingAvatar(false);
+        });
+    }
+  });
 
   useEffect(() => {
     if (loadedImage) {
@@ -26,6 +47,7 @@ const Avatar: React.FC<AvatarProps> = ({editable = false, defaultImage}: AvatarP
         <ImageCropper
           src={loadedImage}
           hide={clear}
+          onReady={uploadAvatar}
         />
       );
     } else {
@@ -52,7 +74,8 @@ const Avatar: React.FC<AvatarProps> = ({editable = false, defaultImage}: AvatarP
   return (
     <>
       <Generic as='div' className={styles.userAvatar}>
-        {editable &&
+        {
+          editable &&
       <form ref={formRef}>
         <Button color='dark' onClick={handleButtonClick}>
           <Icon size='small'>
@@ -67,7 +90,15 @@ const Avatar: React.FC<AvatarProps> = ({editable = false, defaultImage}: AvatarP
           hidden
         />
       </form>}
-        <Image src={defaultImage ?? 'https://bulma.io/images/placeholders/256x256.png'} />
+        {
+          changingAvatar &&
+          <Generic as='div' className={`${styles.spinner} ${styles.active}`}>
+            <Generic as='div' className={styles.container}>
+              <Spinner />
+            </Generic>
+          </Generic>
+        }
+        <Image src={avatarSrc} />
       </Generic>
     </>
   );

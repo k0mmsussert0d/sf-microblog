@@ -12,7 +12,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({user}: UserProfileCard
     <Box>
       <Level>
         <Level.Item align='left'>
-          <Avatar editable={true} />
+          <Avatar
+            username={user.username}
+            editable={true}
+          />
         </Level.Item>
         <Level.Item align='right'>
           <Content>

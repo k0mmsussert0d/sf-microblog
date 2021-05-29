@@ -112,6 +112,17 @@ const API = {
         null
       );
     }
+  },
+  Avatar: {
+    set: (username: string, data: Blob): Promise<void> => {
+      return AwsApi.put(
+        API_NAME,
+        '/avatar',
+        {
+          body: data
+        }
+      );
+    }
   }
 };
 
