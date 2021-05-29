@@ -1,4 +1,7 @@
-from typing import Optional
+from typing import Optional, List
+
+from boto3.dynamodb.conditions import Key
+from pydantic import parse_obj_as
 
 from microblog.models.db import CommentDoc
 from microblog.utils.clients import comments_table
@@ -28,3 +31,27 @@ def put_comment_doc(comment_doc: CommentDoc) -> None:
     comments_table().put_item(
         Item=db_doc
     )
+
+
+def get_user_comments(user_sub: str) -> List[CommentDoc]:
+    res = comments_table().query(
+        IndexName='gsiUserComments',
+        KeyConditionExpression=Key('userSub').eq(user_sub),
+        FilterExpression=Key('active').eq(1),
+        ScanIndexForward=False
+    )
+
+    if len(res['Items']) == 0:
+        return []
+
+    return parse_obj_as(List[CommentDoc], [CommentDoc.parse_from_dynamodb(c) for c in res['Items']])
+
+
+def get_comments_for_post(post_id: int) -> List[CommentDoc]:
+    table = comments_table()
+    response = table.query(
+        IndexName="gsiPostComments",
+        KeyConditionExpression=Key('postId').eq(post_id)
+    )
+
+    return parse_obj_as(List[CommentDoc], response['Items'])

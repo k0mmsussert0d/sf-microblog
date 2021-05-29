@@ -80,7 +80,7 @@ resources:
           - Name: email
             Required: true
             Mutable: true
-          - Name: nickname
+          - Name: preferred_username
             Required: true
             Mutable: true
 
@@ -162,10 +162,20 @@ resources:
             AttributeType: N
           - AttributeName: postId
             AttributeType: N
+          - AttributeName: authorSub
+            AttributeType: S
         GlobalSecondaryIndexes:
           - IndexName: gsiPostComments
             KeySchema:
               - AttributeName: postId
+                KeyType: HASH
+              - AttributeName: id
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: gsiUserComments
+            KeySchema:
+              - AttributeName: authorSub
                 KeyType: HASH
               - AttributeName: id
                 KeyType: RANGE
@@ -194,6 +204,10 @@ resources:
               AllowedOrigins:
                 - "*"
 
+    AvatarsBucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: ${self:provider.environment.DOMAIN_PREFIX}-avatars-bucket
 
   Outputs:
     HttpApiId:
@@ -236,4 +250,10 @@ resources:
       Value:
         Ref: UploadsBucket
       Export:
-        Name: ${self:provider.environment.DOMAIN_PREFIX}
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-UploadsBucket
+
+    AvatarsBucketName:
+      Value:
+        Ref: AvatarsBucket
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-AvatarsBucket

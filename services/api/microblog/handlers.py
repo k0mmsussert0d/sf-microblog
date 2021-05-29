@@ -4,16 +4,17 @@ from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEventV2
 from aws_lambda_powertools.utilities.parser import parse, ValidationError
 
+from microblog.avatars import set_avatar, get_avatar
 from microblog.comment import post_comment, update_comment, delete_comment
 from microblog.media import get_media_from_s3
-from microblog.models.api import NewPost, NewPostWithMedia, NewComment, NewUserDetails
+from microblog.models.api import NewPost, NewPostWithMedia, NewComment
 from microblog.models.middle import NewPostWithMediaMiddle
 from microblog.models.openid import OpenIdClaims
 from microblog.posts import get_posts, post_post, get_post, update_post, delete_post, post_post_w_media, \
     update_post_w_media
-from microblog.user import get_user_self_details, update_user_self_details, get_user_details
+from microblog.user import get_user_self_details, get_user_details
 from microblog.utils.exceptions import AuthorizationError, NotFoundError
-from microblog.utils.parser import ApiGatewayProxyV2Envelope
+from microblog.utils.parser import ApiGatewayProxyV2Envelope, get_binary_body_from_event
 
 logger = Logger()
 
@@ -212,14 +213,6 @@ def user(event, _):
                 'body': get_user_self_details(user_claims)
             }
 
-        elif method == 'PUT':
-            # noinspection PyTypeChecker
-            body: NewUserDetails = parse(event, NewUserDetails, ApiGatewayProxyV2Envelope)
-            return {
-                'statusCode': 200,
-                'body': update_user_self_details(body, user_claims)
-            }
-
     elif username := path_params.get('username'):
         if method == 'GET':
             return {
@@ -252,6 +245,50 @@ def media(event, _):
                     'isBase64Encoded': True
                 }
             except NotFoundError:
+                return {
+                    'statusCode': 404
+                }
+
+    return {
+        'statusCode': 405
+    }
+
+
+@logger.inject_lambda_context()
+def avatar(event, _):
+    event: APIGatewayProxyEventV2 = APIGatewayProxyEventV2(event)
+    logger.debug(event)
+    method = event.request_context.http.method
+    path_params = event.path_parameters
+    content_type = event.headers.get('content-type', 'application/json')
+
+    if not path_params:
+        if method == 'PUT':
+            user_claims = OpenIdClaims.parse_obj(event.request_context.authorizer.jwt_claim)
+            if 'image/png' in content_type:
+                body = get_binary_body_from_event(event)
+                set_avatar(body, user_claims)
+                return {
+                    'statusCode': 204
+                }
+            else:
+                return {
+                    'statusCode': 400
+                }
+
+    elif 'username' in path_params:
+        if method == 'GET':
+            try:
+                obj = get_avatar(path_params['username'])
+                return {
+                    'statusCode': 200,
+                    'body': base64.b64encode(obj.content),
+                    'headers': {
+                        'Content-Type': obj.content_type
+                    },
+                    'isBase64Encoded': True
+                }
+            except NotFoundError as e:
                 return {
                     'statusCode': 404
                 }

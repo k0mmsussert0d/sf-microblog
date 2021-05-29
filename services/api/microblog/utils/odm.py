@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Protocol, TypeVar
 
-from microblog.data.comment import get_comments_for_post
+from microblog.data.comments import get_comments_for_post
 from microblog.data.user import get_basic_user_details, get_user_sub
-from microblog.models.api import Post, Comment
+from microblog.models.api import Post, Comment, BasicPost
 from microblog.models.db import PostDoc, CommentDoc
 
 Obj = TypeVar('Obj')
@@ -34,6 +34,18 @@ class PostODM:
             'date': datetime.fromtimestamp(document.date),
             'imageId': document.imageId,
         })
+
+    @staticmethod
+    def get_basic_post(document: PostDoc) -> BasicPost:
+        return BasicPost(
+            id=document.id,
+            author=get_basic_user_details(document.authorSub),
+            title=document.title,
+            textContent=document.textContent,
+            imageUrl=document.imageId,
+            commentsCount=len(get_comments_for_post(document.id)),
+            date=datetime.fromtimestamp(document.date)
+        )
 
     @staticmethod
     def get_document(obj: Post) -> PostDoc:

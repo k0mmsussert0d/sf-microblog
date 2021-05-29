@@ -12,6 +12,7 @@ provider:
     COMMENTS_TABLE: ${cf:${self:custom.stacks.shared}.CommentsTableName}
     COGNITO_USER_POOL_ID: ${cf:${self:custom.stacks.shared}.CognitoUserPoolId}
     UPLOADS_BUCKET: ${cf:${self:custom.stacks.shared}.UploadsBucketName}
+    AVATARS_BUCKET: ${cf:${self:custom.stacks.shared}.AvatarsBucketName}
   iam:
     role:
       statements:
@@ -31,6 +32,7 @@ provider:
         - Effect: Allow
           Action:
             - cognito-idp:ListUsers
+            - cognito-idp:AdminUpdateUserAttributes
           Resource:
             - "arn:aws:cognito-idp:${opt:region, self:provider.region}:*:userpool/${self:provider.environment.COGNITO_USER_POOL_ID}"
         - Effect: Allow
@@ -44,6 +46,17 @@ provider:
             - s3:PutObject
           Resource:
             - "arn:aws:s3:::${self:provider.environment.UPLOADS_BUCKET}/*"
+        - Effect: Allow
+          Action:
+            - s3:ListBucket
+          Resource:
+            - "arn:aws:s3:::${self:provider.environment.AVATARS_BUCKET}"
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+          Resource:
+            - "arn:aws:s3:::${self:provider.environment.AVATARS_BUCKET}/*"
   httpApi:
     id:
       'Fn::ImportValue': ${self:custom.stacks.shared}-HttpApiId
@@ -104,6 +117,16 @@ functions:
     events:
       - httpApi:
           path: /img/{id}
+          method: GET
+  avatars:
+    handler: microblog.handlers.avatar
+    events:
+      - httpApi:
+          path: /avatar
+          method: PUT
+          authorizer: ${self:custom.resources.authorizer}
+      - httpApi:
+          path: /avatar/{username}
           method: GET
 
 package:

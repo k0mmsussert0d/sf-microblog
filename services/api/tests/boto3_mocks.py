@@ -106,6 +106,10 @@ def dynamodb_comments_table(dynamodb):
             {
                 'AttributeName': 'postId',
                 'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'authorSub',
+                'AttributeType': 'S'
             }
         ],
         GlobalSecondaryIndexes=[
@@ -124,6 +128,22 @@ def dynamodb_comments_table(dynamodb):
                 'Projection': {
                     'ProjectionType': 'ALL'
                 }
+            },
+            {
+                'IndexName': 'gsiUserComments',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'authorSub',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'id',
+                        'KeyType': 'RANGE'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'ALL'
+                }
             }
         ],
         BillingMode='PAY_PER_REQUEST'
@@ -132,38 +152,44 @@ def dynamodb_comments_table(dynamodb):
 
 
 @pytest.fixture(scope='function')
-def dynamodb_sample_data(dynamodb, dynamodb_posts_table, dynamodb_comments_table):
+def dynamodb_sample_data(test_data, dynamodb, dynamodb_posts_table, dynamodb_comments_table):
+    sample_post = test_data['posts'][0]
     dynamodb.put_item(
         TableName='PostsTable',
         Item={
-            "id": {"N": "1"},
-            "date": {"N": "1618527983"},
-            "textContent": {"S": "Text content of a post"},
-            "title": {"S": "Title of a post"},
-            "authorSub": {"S": "b7d5ab35-7c77-456d-83e8-7728de57ed54"}
+            "id": {"N": str(sample_post['id'])},
+            "date": {"N": str(sample_post['date'])},
+            "imageId": {"NULL": True},
+            "textContent": {"S": sample_post['textContent']},
+            "title": {"S": sample_post['title']},
+            "authorSub": {"S": sample_post['authorSub']},
+            "active": {"N": "1"}
         }
     )
+
+    sample_comment = test_data['comments'][0]
     dynamodb.put_item(
         TableName='CommentsTable',
         Item={
-            "id": {"N": "2"},
-            "date": {"N": "1618527988"},
-            "postId": {"N": "1"},
-            "content": {"S": "Content of a post"},
-            "authorSub": {"S": "b7d5ab35-7c77-456d-83e8-7728de57ed54"}
+            "id": {"N": str(sample_comment['id'])},
+            "date": {"N": str(sample_comment['date'])},
+            "postId": {"N": str(sample_comment['postId'])},
+            "content": {"S": sample_comment['content']},
+            "authorSub": {"S": sample_comment['authorSub']},
+            "active": {"N": "1"}
         }
     )
     yield
     dynamodb.delete_item(
         TableName='PostsTable',
         Key={
-            'id': {'N': '1'}
+            'id': {'N': str(sample_post['id'])}
         }
     )
     dynamodb.delete_item(
         TableName='CommentsTable',
         Key={
-            'id': {'N': '4'}
+            'id': {'N': str(sample_comment['id'])}
         }
     )
 
@@ -190,24 +216,33 @@ def cognito_user_pool(cognito_idp):
 
 
 @pytest.fixture(scope='function')
-def cognito_user(cognito_idp, cognito_user_pool):
+def cognito_user(test_data, cognito_idp, cognito_user_pool):
+    sample_user = test_data['users'][0]
     user_pool_id = cognito_user_pool['UserPool']['Id']
     cognito_idp.admin_create_user(
         UserPoolId=user_pool_id,
-        Username='username',
-        UserAttributes=[
-            {
-                'Name': 'username',
-                'Value': 'username'
-            },
-            {
-                'Name': 'sub',
-                'Value': 'b7d5ab35-7c77-456d-83e8-7728de57ed54'
-            }
-        ]
+        Username=sample_user['username'],
+        UserAttributes=[{'Name': name, 'Value': value} for name, value in sample_user.items()]
     )
-    yield
+    yield cognito_idp.admin_get_user(
+        UserPoolId=user_pool_id,
+        Username=sample_user['username']
+    )
     cognito_idp.admin_delete_user(
         UserPoolId=user_pool_id,
-        Username='username',
+        Username=sample_user['username'],
+    )
+
+
+@pytest.fixture(scope='function')
+def cognito_disabled_user(cognito_idp, cognito_user_pool, cognito_user, test_data):
+    user = test_data['users'][0]
+    user_pool_id = cognito_user_pool['UserPool']['Id']
+    cognito_idp.admin_disable_user(
+        UserPoolId=cognito_user_pool['UserPool']['Id'],
+        Username=user['username']
+    )
+    yield cognito_idp.admin_get_user(
+        UserPoolId=user_pool_id,
+        Username=user['username']
     )

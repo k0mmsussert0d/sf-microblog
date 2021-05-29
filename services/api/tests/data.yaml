@@ -1,0 +1,46 @@
+posts:
+  - id: 1
+    date: 1618527983
+    imageId: ~
+    textContent: Text content of a post
+    title: Title of a post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    active: true
+  - id: 3
+    date: 1618528212
+    imageId: ~
+    textContent: Text content of another post
+    title: Title of another post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    active: false
+  - id: 4
+    date: 1618528300
+    imageId: ~
+    textContent: Text content of 4th post
+    title: Title of 4th post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    active: true
+comments:
+  - id: 2
+    date: 1618527988
+    postId: 1
+    content: Content of a post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    active: true
+  - id: 5
+    date: 1618528280
+    postId: 3
+    content: Content of a comment of 3rd post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    active: true
+  - id: 6
+    date: 1618528809
+    postId: 4
+    content: Content of a comment of 4th post
+    authorSub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    active: false
+users:
+  - username: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    sub: b7d5ab35-7c77-456d-83e8-7728de57ed54
+    preferred_username: nickname0
+    avatar: ''
