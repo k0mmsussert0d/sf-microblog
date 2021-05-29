@@ -180,23 +180,6 @@ paths:
                 $ref: '#/components/schemas/userSummary'
         401:
           description: No authorization
-    put:
-      description: Updates details of an authenticated user
-      responses:
-        200:
-          description: Updated details of an authenticated user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/userSummary'
-        401:
-          description: No authorization
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/newUserDetails'
   /user/{username}:
     get:
       description: Get publicly available details of an user
@@ -209,6 +192,41 @@ paths:
                 $ref: '#/components/schemas/userDetails'
         404:
           description: User does not exist
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+  /avatar:
+    put:
+      description: Set avatar as authenticated user
+      responses:
+        204:
+          description: Avatar successfully set
+        400:
+          description: Incorrect payload
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+
+  /avatar/{username}:
+    get:
+      description: Get avatar file of an user
+      responses:
+        200:
+          description: Binary content of an avatar
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: User has no avatar or user is not available
       parameters:
         - name: username
           in: path

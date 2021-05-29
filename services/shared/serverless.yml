@@ -204,6 +204,10 @@ resources:
               AllowedOrigins:
                 - "*"
 
+    AvatarsBucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: ${self:provider.environment.DOMAIN_PREFIX}-avatars-bucket
 
   Outputs:
     HttpApiId:
@@ -246,4 +250,10 @@ resources:
       Value:
         Ref: UploadsBucket
       Export:
-        Name: ${self:provider.environment.DOMAIN_PREFIX}
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-UploadsBucket
+
+    AvatarsBucketName:
+      Value:
+        Ref: AvatarsBucket
+      Export:
+        Name: ${self:provider.environment.DOMAIN_PREFIX}-AvatarsBucket
