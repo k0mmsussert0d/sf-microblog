@@ -15,6 +15,7 @@ import { UserSummary } from './models/API';
 import Profile from './views/Profile';
 import AuthenticatedRoute from './utils/AuthenticatedRoute';
 import {ModalContext, ModalElement} from './utils/ModalContext';
+import {Helmet} from 'react-helmet';
 
 
 const App: React.FC = (): ReactElement => {
@@ -65,6 +66,11 @@ const App: React.FC = (): ReactElement => {
         clear: () => setModal(undefined)
       }}>
         <Router>
+          <Helmet>
+            <meta charSet='utf-8' />
+            <meta name='description' content='Community-driven platform for sharing pics and content' />
+            <title>Microblog</title>
+          </Helmet>
           <Header />
           <Generic as='div' className='main-wrapper'>
             <Modal
