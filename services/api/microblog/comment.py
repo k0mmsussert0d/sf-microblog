@@ -73,5 +73,5 @@ def _assert_user_rights_to_edit_comment(comment_id, user_claims):
     post_doc = get_post_doc(comment_doc.postId)
     if post_doc is None or not post_doc.active:
         raise NotFoundError('Post does not exist')
-    if post_doc.authorSub != user_claims.sub:
+    if comment_doc.authorSub != user_claims.sub:
         raise AuthorizationError('User is not authorized to edit this comment')
