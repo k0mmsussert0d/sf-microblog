@@ -1,5 +1,5 @@
 import {createContext, useContext} from 'react';
-import {UserSummary} from '../models/API';
+import { UserSummary } from '../models/API';
 
 interface AppContextType {
   isAuthenticated: boolean,

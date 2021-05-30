@@ -1,37 +1,31 @@
-import {Post} from '../../models/API';
 import React, {ReactElement} from 'react';
-import styles from './PostOpened.module.scss';
-import {Content, Generic, Icon, Image, Level, Media, Title, Dropdown, Button} from 'rbx';
+import {Comment} from '../../models/API';
+import {Button, Content, Dropdown, Icon, Image, Level, Media} from 'rbx';
+import styles from './CommentComp.module.scss';
 import {Link} from 'react-router-dom';
 import {formatTextContent, getRelativeTimestamp} from '../../utils/viewLib';
-import CommentComp from '../comment/CommentComp';
-import Config from '../../config';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEdit, faEllipsisV, faTrash} from '@fortawesome/free-solid-svg-icons';
 
+const DisplayComment: React.FC<DisplayCommentProps> = ({comment, editable, toggleEdit, toggleDelete}: DisplayCommentProps): ReactElement => {
 
-const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit, toggleDelete}: PostOpenedProps): ReactElement => {
-
-  const postDate = new Date(post.date);
+  const commentDate = new Date(comment.date);
 
   return (
-    <Media key={post.id} as='article'>
-      <Media.Item as="figure" align="left">
-        <Image.Container as="p" size={64}>
-          <Image
-            alt="64x64"
-            src="https://bulma.io/images/placeholders/128x128.png"
-          />
+    <Media>
+      <Media.Item as='figure' align='left'>
+        <Image.Container as="p" size={48}>
+          <Image src="https://bulma.io/images/placeholders/128x128.png" />
         </Image.Container>
       </Media.Item>
-      <Media.Item align="content">
-        <Level as='nav' className={styles.postHeader}>
+      <Media.Item align='content'>
+        <Level as='nav' className={styles.commentHeader}>
           <Level.Item align='left'>
-            <Level.Item className={styles.postAuthor} as={Link} to={`/profile/${post.author.username}`}>
-              {post.author.username}
+            <Level.Item className={styles.commentAuthor} as={Link} to={`/user/${comment.author.username}`}>
+              {comment.author.username}
             </Level.Item>
-            <Level.Item className={styles.postDate} tooltip={postDate.toLocaleString()}>
-              {getRelativeTimestamp(postDate) + ' ago'}
+            <Level.Item tooltip={commentDate.toLocaleString()}>
+              {getRelativeTimestamp(commentDate) + ' ago'}
             </Level.Item>
           </Level.Item>
           {editable &&
@@ -41,7 +35,7 @@ const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit, togg
                 <Dropdown.Trigger>
                   <Button inverted color='black'>
                     <Icon size='small'>
-                      <FontAwesomeIcon icon={faEllipsisV}/>
+                      <FontAwesomeIcon icon={faEllipsisV} />
                     </Icon>
                   </Button>
                 </Dropdown.Trigger>
@@ -76,38 +70,20 @@ const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit, togg
                 </Dropdown.Menu>
               </Dropdown>
             </Level.Item>
-          </Level.Item>}
+          </Level.Item>
+          }
         </Level>
-        <Generic as='div' className={styles.postContent}>
-          <Title size={2} as='h2' className={styles.postTitle}>{post.title}</Title>
-          {post.imageId && <Image.Container>
-            <Image
-              alt={`${post.title} attached image`}
-              src={`${Config.apiGateway.URL}/img/${post.imageId}`}
-            />
-          </Image.Container>}
-          <Content>
-            <p className={styles.postTextContent} dangerouslySetInnerHTML={{__html: formatTextContent(post.textContent)}} />
-          </Content>
-        </Generic>
-        {post.comments && post.comments.map((comment) => (
-          <CommentComp
-            key={comment.id}
-            comment={comment}
-            editable={comment.author.username === post.author.username}
-            parentPostId={post.id}
-          />
-        ))}
+        <Content dangerouslySetInnerHTML={{__html: formatTextContent(comment.content)}} />
       </Media.Item>
     </Media>
   );
 };
 
-export interface PostOpenedProps {
-  post: Post,
+export interface DisplayCommentProps {
+  comment: Comment
   editable: boolean
   toggleEdit: () => void
   toggleDelete: () => void
 }
 
-export default PostOpened;
+export default DisplayComment;

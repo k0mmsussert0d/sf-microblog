@@ -45,8 +45,9 @@ const App: React.FC = (): ReactElement => {
         if (e !== 'No current user') {
           console.error(e);
         }
+      } finally {
+        setIsAuthenticating(false);
       }
-      setIsAuthenticating(false);
     };
 
     onLoad();

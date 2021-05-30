@@ -23,3 +23,5 @@ export interface ControlledInputProps<T> extends UseControllerProps<T> {
   placeholder?: string
   error?: FieldError | undefined
 }
+
+export default ControlledInput;

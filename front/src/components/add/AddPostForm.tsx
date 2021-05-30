@@ -26,7 +26,7 @@ const AddPostForm: React.FC = (): ReactElement => {
   const [errorMsg, setErrorMsg] = useState<Message | undefined>(undefined);
   const [addedPostId, setAddedPostId] = useState<number | undefined>(undefined);
 
-  const addPost = async (form: AddPostFormForms): Promise<void> => {
+  const addPost = (form: AddPostFormForms) => {
     setIsAdding(true);
 
     const postDetails: NewPost = {
