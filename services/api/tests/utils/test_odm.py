@@ -1,7 +1,7 @@
 """
 Tests suite validating mapping between API and DB models functions correctly
 """
-from datetime import datetime
+from datetime import datetime, timezone
 
 from microblog.models.api import BasicUserDetails, Post, Comment
 from microblog.models.db import PostDoc, CommentDoc
@@ -10,7 +10,7 @@ from microblog.utils.odm import PostODM, CommentODM
 
 def test_post_from_postdoc_maps_correctly(cognito_user, dynamodb_sample_data, test_data):
     id = 1
-    dt = datetime(2021, 1, 1, 12, 0, 0)
+    dt = datetime(2021, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
     author_uuid = test_data['users'][0]['sub']
     title = 'foo'
     text = 'bar'
@@ -63,7 +63,7 @@ def test_postdoc_from_post_maps_correctly(cognito_user, test_data):
 
 def test_comment_from_commentdoc_maps_correctly(cognito_user, dynamodb_sample_data, test_data):
     id = 2
-    dt = datetime(2021, 1, 1, 12, 0, 0)
+    dt = datetime(2021, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
     content = 'foo'
     author_uuid = test_data['users'][0]['sub']
 

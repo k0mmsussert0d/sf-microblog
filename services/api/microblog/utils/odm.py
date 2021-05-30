@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Protocol, TypeVar
 
 from microblog.data.comments import get_comments_for_post
@@ -31,7 +31,7 @@ class PostODM:
             'title': document.title,
             'textContent': document.textContent,
             'comments': [CommentODM.get_object(d) for d in get_comments_for_post(document.id)],
-            'date': datetime.fromtimestamp(document.date),
+            'date': datetime.fromtimestamp(document.date, timezone.utc),
             'imageId': document.imageId,
         })
 
@@ -67,7 +67,7 @@ class CommentODM:
             'id': document.id,
             'author': get_basic_user_details(document.authorSub),
             'content': document.content,
-            'date': datetime.fromtimestamp(document.date),
+            'date': datetime.fromtimestamp(document.date, timezone.utc),
         })
 
     @staticmethod
