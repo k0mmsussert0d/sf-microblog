@@ -1,6 +1,8 @@
 .loadContainer {
   position: relative;
   display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .loader {
