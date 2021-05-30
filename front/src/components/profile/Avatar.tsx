@@ -7,6 +7,7 @@ import ImageCropper from './ImageCropper';
 import {useModalContext} from '../../utils/ModalContext';
 import API from '../../utils/API';
 import Spinner from '../shared/Spinner';
+import Config from '../../config';
 
 export interface AvatarProps {
   username: string,
@@ -27,13 +28,12 @@ const Avatar: React.FC<AvatarProps> = ({username, editable = false, defaultImage
 
   const uploadAvatar: BlobCallback = (blob => {
     if (blob) {
+      clear();
       setChangingAvatar(true);
-      API.Avatar.set(username, blob)
+      API.Avatar.set(blob)
         .then(() => {
-          console.log('success');
-        })
-        .catch(() => {
-          console.log('failed');
+          const hash = Date.now();
+          setAvatarSrc(`${Config.apiGateway.URL}/avatar/${username}?${hash}`);
         })
         .finally(() => {
           setChangingAvatar(false);

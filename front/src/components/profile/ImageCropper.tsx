@@ -59,7 +59,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({hide, src, onReady}: ImageCr
     );
   }, [completedCrop]);
 
-  const download = (): void => {
+  const readyCallback = (): void => {
     if (!crop || !canvasRef.current) {
       return;
     }
@@ -91,7 +91,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({hide, src, onReady}: ImageCr
             }}
           />
           <Generic as='div' className={styles.confirmButtonBox}>
-            <Button onClick={download} color='success'>
+            <Button onClick={readyCallback} color='success'>
               Set as avatar
             </Button>
           </Generic>

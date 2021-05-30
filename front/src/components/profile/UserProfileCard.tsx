@@ -3,8 +3,9 @@ import {UserSummary} from '../../models/API';
 import {Box, Level, Content} from 'rbx';
 import {getRelativeTimestamp} from '../../utils/viewLib';
 import Avatar from './Avatar';
+import Config from '../../config';
 
-const UserProfileCard: React.FC<UserProfileCardProps> = ({user}: UserProfileCardProps): ReactElement => {
+const UserProfileCard: React.FC<UserProfileCardProps> = ({user, editable}: UserProfileCardProps): ReactElement => {
 
   const date = new Date(user.joined);
 
@@ -14,7 +15,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({user}: UserProfileCard
         <Level.Item align='left'>
           <Avatar
             username={user.username}
-            editable={true}
+            editable={editable}
+            defaultImage={`${Config.apiGateway.URL}/avatar${user.avatar}` ?? undefined}
           />
         </Level.Item>
         <Level.Item align='right'>

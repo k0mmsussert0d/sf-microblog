@@ -62,7 +62,7 @@ const Profile: React.FC<RouteComponentProps<ProfileProps>> = ({match}: RouteComp
           {errorMsg && <ErrorMessage msg={errorMsg} />}
           {userProfile &&
           <>
-            <UserProfileCard user={userProfile.summary} editable={false} />
+            <UserProfileCard user={userProfile.summary} editable={isAuthenticated && !match.params.username} />
             <UserActivity posts={userProfile.posts} comments={userProfile.comments} />
           </>
           }

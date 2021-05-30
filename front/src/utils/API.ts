@@ -1,5 +1,7 @@
 import {NewComment, NewPost, NewPostWithMedia, NewUserDetails, Post, UserDetails, UserSummary, Comment} from '../models/API';
-import {API as AwsApi} from 'aws-amplify';
+import {Amplify, API as AwsApi} from 'aws-amplify';
+import Config from '../config';
+import axios from 'axios';
 
 const API_NAME = 'api';
 
@@ -114,16 +116,17 @@ const API = {
     }
   },
   Avatar: {
-    set: (username: string, data: Blob): Promise<void> => {
-      return AwsApi.put(
-        API_NAME,
-        '/avatar',
-        {
-          body: data
+    set: async (data: Blob): Promise<void> => {
+      const bearer = `Bearer ${(await Amplify.Auth.currentSession()).getIdToken().getJwtToken()}`;
+
+      return axios.put(`${Config.apiGateway.URL}/avatar`, data, {
+        headers: {
+          'Content-Type': data.type,
+          'Authorization': bearer
         }
-      );
-    }
-  }
+      });
+    },
+  },
 };
 
 export default API;
