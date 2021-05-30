@@ -19,7 +19,7 @@ const CommentComp: React.FC<CommentCompProps> = ({comment, editable, parentPostI
         toggleEdit={toggleEditModal}
         toggleDelete={toggleDeleteModal}
       />
-      {displayEditModal &&
+      {editable && parentPostId && displayEditModal &&
       <EditCommentModal
         comment={commentState}
         setComment={setCommentState}
@@ -34,7 +34,7 @@ const CommentComp: React.FC<CommentCompProps> = ({comment, editable, parentPostI
 export interface CommentCompProps {
   comment: Comment
   editable: boolean
-  parentPostId: number
+  parentPostId?: number
 }
 
 export default CommentComp;
