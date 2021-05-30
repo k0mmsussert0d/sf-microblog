@@ -51,7 +51,8 @@ def get_comments_for_post(post_id: int) -> List[CommentDoc]:
     table = comments_table()
     response = table.query(
         IndexName="gsiPostComments",
-        KeyConditionExpression=Key('postId').eq(post_id)
+        KeyConditionExpression=Key('postId').eq(post_id),
+        FilterExpression=Key('active').eq(1)
     )
 
     return parse_obj_as(List[CommentDoc], response['Items'])
