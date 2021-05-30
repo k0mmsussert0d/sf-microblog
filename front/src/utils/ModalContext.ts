@@ -8,6 +8,10 @@ interface ModalContextType {
   clear: () => void,
 }
 
+export interface ModalElementType {
+  hide: () => void
+}
+
 export const ModalContext = createContext<ModalContextType>({} as ModalContextType);
 
 export const useModalContext = (): ModalContextType => {

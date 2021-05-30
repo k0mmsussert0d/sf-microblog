@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from 'react';
+import React, {useState} from 'react';
 import {Comment, NewComment} from '../../models/API';
 import {Delete, Modal, Field, Label, Control, Level, Button, Generic} from 'rbx';
 import {useForm} from 'react-hook-form';
@@ -6,12 +6,13 @@ import styles from '../post/EditPostModal.module.scss';
 import API from '../../utils/API';
 import {Message} from '../../models/UI';
 import ControlledTextarea from '../shared/ControlledTextarea';
+import {ModalElement} from '../../utils/ModalContext';
 
 interface EditCommentModalForms {
   textContent: string
 }
 
-const EditCommentModal: React.FC<EditCommentModalProps> = ({comment, setComment, toggle, parentPostId}: EditCommentModalProps): ReactElement => {
+const EditCommentModal: React.FC<EditCommentModalProps> = ({comment, setComment, toggle, parentPostId}: EditCommentModalProps): ModalElement => {
 
   const {handleSubmit, formState: {errors}, control} = useForm<EditCommentModalForms>();
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +43,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({comment, setComment,
   };
 
   return (
-    <Modal active>
+    <>
       <Modal.Background onClick={toggle} />
       <form onSubmit={handleSubmit(editComment)}>
         <Modal.Card>
@@ -91,7 +92,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({comment, setComment,
           </Modal.Card.Foot>
         </Modal.Card>
       </form>
-    </Modal>
+    </>
   );
 };
 

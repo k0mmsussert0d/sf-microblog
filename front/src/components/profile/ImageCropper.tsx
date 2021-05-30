@@ -1,17 +1,17 @@
 import {Box, Modal, Button, Generic} from 'rbx';
-import React, {ReactElement, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import ReactCrop, {Crop} from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import styles from './ImageCropper.module.scss';
+import {ModalElement, ModalElementType} from '../../utils/ModalContext';
 
 
-export interface ImageCropperProps {
-  hide: () => void,
+export interface ImageCropperProps extends ModalElementType {
   src: string,
   onReady: BlobCallback,
 }
 
-const ImageCropper: React.FC<ImageCropperProps> = ({hide, src, onReady}: ImageCropperProps): ReactElement => {
+const ImageCropper: React.FC<ImageCropperProps> = ({hide, src, onReady}: ImageCropperProps): ModalElement => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
