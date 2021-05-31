@@ -1,0 +1,78 @@
+@startuml General architecture
+
+!define AWSPUML https://raw.githubusercontent.com/milo-minderbinder/AWS-PlantUML/release/18-2-22/dist
+
+!includeurl AWSPUML/common.puml
+!includeurl AWSPUML/ApplicationServices/AmazonAPIGateway/AmazonAPIGateway.puml
+!includeurl AWSPUML/Compute/AWSLambda/AWSLambda.puml
+!includeurl AWSPUML/Compute/AWSLambda/LambdaFunction/LambdaFunction.puml
+!includeurl AWSPUML/Database/AmazonDynamoDB/AmazonDynamoDB.puml
+!includeurl AWSPUML/Database/AmazonDynamoDB/table/table.puml
+!includeurl AWSPUML/General/AWScloud/AWScloud.puml
+!includeurl AWSPUML/General/client/client.puml
+!includeurl AWSPUML/General/user/user.puml
+!includeurl AWSPUML/SDKs/JavaScript/JavaScript.puml
+!includeurl AWSPUML/Storage/AmazonS3/AmazonS3.puml
+!includeurl AWSPUML/Storage/AmazonS3/bucket/bucket.puml
+!includeurl AWSPUML/MobileServices/AmazonCognito/AmazonCognito.puml
+
+
+skinparam componentArrowColor Black
+skinparam componentBackgroundColor White
+skinparam nodeBackgroundColor White
+skinparam agentBackgroundColor White
+skinparam artifactBackgroundColor White
+
+
+USER(user,User)
+CLIENT(browser,Browser)
+JAVASCRIPT(js,SDK)
+component Heroku/Netlify {
+    [Frontend] as site
+}
+
+AWSCLOUD(aws) {
+
+    AMAZONS3(s3) {
+        BUCKET(content,content)
+        BUCKET(avatars,avatars)
+    }
+
+    AMAZONAPIGATEWAY(api,Public HTTP API)
+
+    AWSLAMBDA(lambda,) {
+        LAMBDAFUNCTION(posts,posts)
+        LAMBDAFUNCTION(comments,comments)
+        LAMBDAFUNCTION(users,users)
+        LAMBDAFUNCTION(media,media)
+    }
+
+    AMAZONDYNAMODB(dynamo) {
+        TABLE(posts_table,Posts)
+        TABLE(comments_table,Comments)
+    }
+
+    AMAZONCOGNITO(cognito,User Pool)
+}
+
+user - browser
+
+browser --> site
+browser - js
+js --> api
+
+api --> posts : GET /post\n*POST /post\nGET /post/{id}\n*PUT /post/{id}\n*DELETE /post/{id}
+api --> comments : \n*POST /comment\n*PUT /comment/{id}\n*DELETE /comment/{id}
+api --> users : \n*GET /user\n*PUT /user\nGET /user/{username}
+api --> media : GET /img/{id}
+
+api --> cognito
+
+posts --> posts_table : GetItem,\nPutItem,\nUpdateItem
+posts --> comments_table : GetItem
+comments --> comments_table : GetItem,\nPutItem,\nUpdateItem
+users -> cognito : ListUsers,\nUpdateUserAttributes
+media --> avatars : GetObject,\nPutObject
+media --> content : GetObject,\nPutObject
+
+@enduml
