@@ -22,7 +22,7 @@ const App: React.FC = (): ReactElement => {
 
   const [isAuthenticated, userHasAuthenticated] = useState<boolean>(false);
   const [authenticatedUser, setAuthenticatedUser] = useState<UserSummary | undefined>(undefined);
-  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
+  const [, setIsAuthenticating] = useState<boolean>(false);
 
   const [modal, setModal] = useState<ModalElement | undefined>(undefined);
 
