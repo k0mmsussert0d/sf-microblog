@@ -34,21 +34,18 @@ const AddPostForm: React.FC = (): ReactElement => {
       textContent: form.textContent ?? ''
     };
 
-    let apiCall: (post: any) => Promise<Post>;
-    let args;
+    let post: Promise<Post>;
 
     if (form.mediaContent.length > 0) {
-      apiCall = API.Post.postWithMedia;
-      args = {
+      post = API.Post.postWithMedia({
         postDetails: postDetails,
         mediaData: form.mediaContent[0]
-      };
+      });
     } else {
-      apiCall = API.Post.post;
-      args = postDetails;
+      post = API.Post.post(postDetails);
     }
 
-    apiCall(args).then(addedPost => {
+    post.then(addedPost => {
       setAddedPostId(addedPost.id);
     }).catch(reason => {
       displayErrorMsg({
