@@ -20,7 +20,7 @@ const PostOpened: React.FC<PostOpenedProps> = ({post, editable, toggleEdit, togg
         <Image.Container as="p" size={64}>
           <Image
             alt="64x64"
-            src="https://bulma.io/images/placeholders/128x128.png"
+            src={`${Config.apiGateway.URL}/avatar${post.author.avatar}` ?? 'https://bulma.io/images/placeholders/128x128.png'}
           />
         </Image.Container>
       </Media.Item>
