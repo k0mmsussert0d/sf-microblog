@@ -3,6 +3,26 @@ from unittest import TestCase
 from microblog.models.db import CommentDoc
 
 
+def test__get_comment_doc__if_comment_does_not_exist__return_none(dynamodb_comments_table):
+    from microblog.data.comments import get_comment_doc
+
+    assert get_comment_doc(1) is None
+
+
+def test__get_comment_doc__if_comment_exists__return_doc(
+        test_data,
+        dynamodb,
+        dynamodb_comments_table,
+        dynamodb_sample_data
+):
+    from microblog.data.comments import get_comment_doc
+
+    comment = test_data['comments'][0]
+    comment_id = comment['id']
+
+    assert get_comment_doc(comment_id) == CommentDoc.parse_obj(comment)
+
+
 def test_get_comments_for_post_if_no_comments_return_empty_list(dynamodb_comments_table):
     from microblog.data.comments import get_comments_for_post
 
