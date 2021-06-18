@@ -23,6 +23,56 @@ def test__get_comment_doc__if_comment_exists__return_doc(
     assert get_comment_doc(comment_id) == CommentDoc.parse_obj(comment)
 
 
+def test__put_comment_doc__if_comment_is_active__save_comment_with_active_set_to_1(
+        test_data,
+        dynamodb,
+        dynamodb_comments_table
+):
+    from microblog.data.comments import put_comment_doc
+    from microblog.utils.clients import comments_table
+
+    comment = test_data['comments'][0]
+    comment['active'] = True
+
+    comment_doc = CommentDoc.parse_obj(comment)
+
+    put_comment_doc(comment_doc)
+
+    res = comments_table().get_item(
+        Key={
+            'id': comment['id']
+        }
+    )
+
+    assert (saved_doc := res['Item']) is not None
+    assert saved_doc == {**comment, 'active': 1}
+
+
+def test__put_comment_doc__if_comment_is_not_active__save_comment_with_active_set_to_0(
+        test_data,
+        dynamodb,
+        dynamodb_comments_table
+):
+    from microblog.data.comments import put_comment_doc
+    from microblog.utils.clients import comments_table
+
+    comment = test_data['comments'][0]
+    comment['active'] = False
+
+    comment_doc = CommentDoc.parse_obj(comment)
+
+    put_comment_doc(comment_doc)
+
+    res = comments_table().get_item(
+        Key={
+            'id': comment['id']
+        }
+    )
+
+    assert (saved_doc := res['Item']) is not None
+    assert saved_doc == {**comment, 'active': 0}
+
+
 def test_get_comments_for_post_if_no_comments_return_empty_list(dynamodb_comments_table):
     from microblog.data.comments import get_comments_for_post
 
@@ -51,21 +101,21 @@ def test_get_user_comments__if_user_has_comments__return_all_active_comments(
         dynamodb_comments_table
 ):
     from microblog.data.comments import get_user_comments
+    from microblog.utils.clients import comments_table
 
     user = test_data['users'][0]
     comments = test_data['comments']
     comment_docs = []
 
     for comment in comments:
-        dynamodb.put_item(
-            TableName='CommentsTable',
+        comments_table().put_item(
             Item={
-                "id": {"N": str(comment['id'])},
-                "date": {"N": str(comment['date'])},
-                "postId": {"N": str(comment['postId'])},
-                "content": {"S": comment['content']},
-                "authorSub": {"S": comment['authorSub']},
-                "active": {"N": "1" if comment['active'] else "0"}
+                "id": comment['id'],
+                "date": comment['date'],
+                "postId": comment['postId'],
+                "content": comment['content'],
+                "authorSub": comment['authorSub'],
+                "active": 1 if comment['active'] else 0
             }
         )
         if comment['active']:
